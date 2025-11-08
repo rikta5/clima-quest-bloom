@@ -22,8 +22,14 @@ export interface Topic {
   id: string;
   name: string;
   description: string;
+  complexity: "Beginner" | "Intermediate" | "Advanced";
+  image: string;
   levels: Level[];
 }
+
+import climateFundamentalsImg from "@/assets/topic-climate-fundamentals.png";
+import sustainableSolutionsImg from "@/assets/topic-sustainable-solutions.png";
+import ecosystemProtectionImg from "@/assets/topic-ecosystem-protection.png";
 
 // This will be replaced by backend data eventually
 export const topics: Topic[] = [
@@ -31,6 +37,8 @@ export const topics: Topic[] = [
     id: "climate-fundamentals",
     name: "Climate Fundamentals",
     description: "Master the basics of climate science and environmental impact",
+    complexity: "Beginner",
+    image: climateFundamentalsImg,
     levels: [
       {
         id: 1,
@@ -95,6 +103,8 @@ export const topics: Topic[] = [
     id: "sustainable-solutions",
     name: "Sustainable Solutions",
     description: "Explore renewable energy and eco-friendly practices",
+    complexity: "Intermediate",
+    image: sustainableSolutionsImg,
     levels: [
       {
         id: 4,
@@ -140,6 +150,8 @@ export const topics: Topic[] = [
     id: "ecosystem-protection",
     name: "Ecosystem Protection",
     description: "Learn about biodiversity and ocean conservation",
+    complexity: "Advanced",
+    image: ecosystemProtectionImg,
     levels: [
       {
         id: 6,
