@@ -1,27 +1,17 @@
 import { NodeCircle } from "./NodeCircle";
 import { Play, Sparkles, Lock, CheckCircle2, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { coreLevels, topics, LevelStatus } from "@/config/levelsConfig";
-import { useUserProgress } from "@/hooks/useUserProgress";
+import { coreLevels, topics } from "@/config/levelsConfig";
+import { useLevelProgress } from "@/hooks/useLevelProgress";
 
 export const MiniLevelPath = () => {
   const navigate = useNavigate();
-  const { userData } = useUserProgress();
+  const { getLevelStatus } = useLevelProgress();
 
   // Get first 5 levels from the config
   const levels = coreLevels.slice(0, 5);
   
-  // Helper to get level status from user progress
-  const getLevelStatus = (levelId: number): LevelStatus => {
-    if (!userData?.levelProgress) {
-      // Default: first level unlocked, rest locked
-      return levelId === 1 ? "unlocked" : "locked";
-    }
-    const status = userData.levelProgress[levelId];
-    return (status as LevelStatus) || "locked";
-  };
-  
-  // Get levels with their dynamic status
+  // Get levels with their dynamic status from Firebase
   const levelsWithStatus = levels.map(level => ({
     ...level,
     status: getLevelStatus(level.id)
