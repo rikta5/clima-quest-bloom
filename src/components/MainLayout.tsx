@@ -17,7 +17,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   const streak = userData?.streak || 0;
 
   const navItems = [
-    { to: "/", icon: Home, label: "Home" },
+    { to: "/home", icon: Home, label: "Home" },
     { to: "/levels", icon: Target, label: "Levels" },
     { to: "/profile", icon: User, label: "Profile" },
     { to: "/reels", icon: Film, label: "Reels" },
@@ -25,8 +25,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   ];
 
   const isActive = (path: string) => {
-    if (path === "/") {
-      return location.pathname === "/";
+    if (path === "/home") {
+      return location.pathname === "/home";
     }
     return location.pathname.startsWith(path);
   };
@@ -38,7 +38,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to="/home" className="flex items-center gap-2 group">
               <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
                 <img 
                   src={mascotLogo} 

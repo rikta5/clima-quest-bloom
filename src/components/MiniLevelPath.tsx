@@ -54,80 +54,88 @@ export const MiniLevelPath = () => {
         </p>
       </div>
 
-      {/* Level Path */}
-      <div className="relative py-8">
-        {/* Connecting Line with Progress */}
-        <div className="absolute top-1/2 left-0 w-full h-2 -translate-y-1/2 bg-muted rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-            style={{ width: `${(completedCount / levels.length) * 100}%` }}
-          />
+      {levels.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          Loading your progress...
         </div>
+      ) : (
+        <>
+          {/* Level Path */}
+          <div className="relative py-8">
+            {/* Connecting Line with Progress */}
+            <div className="absolute top-1/2 left-0 w-full h-2 -translate-y-1/2 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                style={{ width: `${(completedCount / levels.length) * 100}%` }}
+              />
+            </div>
 
-        {/* Nodes */}
-        <div className="relative flex items-center justify-between px-4">
-          {levelsWithStatus.map((level, index) => {
-            const status = getNodeStatus(index);
-            // Only the first unlocked level gets the big Play button
-            const isActive = index === currentLevelIndex && level.status === "unlocked";
-            
-            return (
-              <div key={level.id} className="relative flex flex-col items-center gap-3 group">
-                {isActive ? (
-                  <button
-                    onClick={() => navigate("/levels")}
-                    className="relative w-20 h-20 bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-full shadow-eco-lg flex items-center justify-center font-bold text-lg hover:scale-110 transition-all duration-300"
-                  >
-                    <div className="relative flex flex-col items-center">
-                      <Play className="w-8 h-8 fill-current" />
-                      <span className="text-xs mt-1">Play</span>
-                    </div>
-                  </button>
-                ) : (
-                  <div className="relative">
-                    <NodeCircle
-                      number={level.id}
-                      status={status}
-                      size="md"
-                    />
-                    {status === "completed" && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
-                        <CheckCircle2 className="w-3 h-3 text-accent-foreground" />
+            {/* Nodes */}
+            <div className="relative flex items-center justify-between px-4">
+              {levelsWithStatus.map((level, index) => {
+                const status = getNodeStatus(index);
+                // Only the first unlocked level gets the big Play button
+                const isActive = index === currentLevelIndex && level.status === "unlocked";
+                
+                return (
+                  <div key={level.id} className="relative flex flex-col items-center gap-3 group">
+                    {isActive ? (
+                      <button
+                        onClick={() => navigate("/home")}
+                        className="relative w-20 h-20 bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-full shadow-eco-lg flex items-center justify-center font-bold text-lg hover:scale-110 transition-all duration-300"
+                      >
+                        <div className="relative flex flex-col items-center">
+                          <Play className="w-8 h-8 fill-current" />
+                          <span className="text-xs mt-1">Play</span>
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="relative">
+                        <NodeCircle
+                          number={level.id}
+                          status={status}
+                          size="md"
+                        />
+                        {status === "completed" && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
+                            <CheckCircle2 className="w-3 h-3 text-accent-foreground" />
+                          </div>
+                        )}
+                        {status === "locked" && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-muted rounded-full flex items-center justify-center">
+                            <Lock className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
                     )}
-                    {status === "locked" && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-muted rounded-full flex items-center justify-center">
-                        <Lock className="w-3 h-3 text-muted-foreground" />
-                      </div>
+                    
+                    {/* Level Label */}
+                    <div className={`text-center space-y-1 transition-all ${isActive ? 'scale-110' : ''}`}>
+                      <p className={`text-xs font-semibold ${
+                        status === "completed" ? "text-accent" :
+                        isActive ? "text-primary" :
+                        "text-muted-foreground"
+                      }`}>
+                        L{level.id}
+                      </p>
+                      <p className={`text-[10px] max-w-[60px] line-clamp-2 ${
+                        isActive ? "text-foreground font-medium" : "text-muted-foreground"
+                      }`}>
+                        {level.title}
+                      </p>
+                    </div>
+
+                    {/* Sparkle effect for active level */}
+                    {isActive && (
+                      <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-primary" />
                     )}
                   </div>
-                )}
-                
-                {/* Level Label */}
-                <div className={`text-center space-y-1 transition-all ${isActive ? 'scale-110' : ''}`}>
-                  <p className={`text-xs font-semibold ${
-                    status === "completed" ? "text-accent" :
-                    isActive ? "text-primary" :
-                    "text-muted-foreground"
-                  }`}>
-                    L{level.id}
-                  </p>
-                  <p className={`text-[10px] max-w-[60px] line-clamp-2 ${
-                    isActive ? "text-foreground font-medium" : "text-muted-foreground"
-                  }`}>
-                    {level.title}
-                  </p>
-                </div>
-
-                {/* Sparkle effect for active level */}
-                {isActive && (
-                  <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-primary" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

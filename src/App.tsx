@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Levels from "./pages/Levels";
 import TopicMap from "./pages/TopicMap";
@@ -22,7 +23,7 @@ const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
   
   return <>{children}</>;
@@ -36,8 +37,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<AuthRedirect><Auth /></AuthRedirect>} />
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/levels" element={<ProtectedRoute><Levels /></ProtectedRoute>} />
             <Route path="/levels/topic/:topicId" element={<ProtectedRoute><TopicMap /></ProtectedRoute>} />
             <Route path="/levels/:id" element={<ProtectedRoute><LevelDetail /></ProtectedRoute>} />
