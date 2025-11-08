@@ -33,12 +33,12 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
   };
 
   return (
-    <div className="relative h-full flex flex-col items-center justify-center px-8 max-w-7xl mx-auto">
-      {/* Main Full-Page Card */}
-      <Card className="w-full shadow-2xl border-2 overflow-hidden">
+    <div className="relative w-full h-[calc(100vh-80px)]">
+      {/* Main Full-Width Slide */}
+      <Card className="w-full h-full shadow-2xl border-none rounded-none overflow-hidden">
         <div className="grid md:grid-cols-2 gap-0 h-full">
-          {/* Image Section - Full Height */}
-          <div className="relative h-[50vh] md:h-[70vh]">
+          {/* Image Section */}
+          <div className="relative h-full">
             <img
               src={currentTopic.image}
               alt={currentTopic.name}
@@ -46,14 +46,14 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <Badge 
-              className={`absolute top-6 right-6 text-base px-6 py-2 ${complexityColors[currentTopic.complexity]}`}
+              className={`absolute top-8 right-8 text-base px-6 py-2 ${complexityColors[currentTopic.complexity]}`}
             >
               {currentTopic.complexity}
             </Badge>
           </div>
 
           {/* Content Section */}
-          <div className="p-12 flex flex-col justify-center space-y-8">
+          <div className="p-12 md:p-16 flex flex-col justify-center space-y-8">
             <div className="space-y-6">
               <div className="space-y-4">
                 <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
@@ -105,11 +105,11 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
         </div>
       </Card>
 
-      {/* Navigation Buttons */}
+      {/* Navigation Buttons - Absolutely Positioned */}
       <Button
         variant="outline"
         size="icon"
-        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-xl bg-card/90 backdrop-blur hover:bg-primary hover:text-primary-foreground transition-all"
+        className="absolute left-8 top-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-xl bg-card/90 backdrop-blur hover:bg-primary hover:text-primary-foreground transition-all z-10"
         onClick={prevSlide}
         disabled={currentIndex === 0}
       >
@@ -119,15 +119,15 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
       <Button
         variant="outline"
         size="icon"
-        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-xl bg-card/90 backdrop-blur hover:bg-primary hover:text-primary-foreground transition-all"
+        className="absolute right-8 top-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-xl bg-card/90 backdrop-blur hover:bg-primary hover:text-primary-foreground transition-all z-10"
         onClick={nextSlide}
         disabled={currentIndex === topics.length - 1}
       >
         <ChevronRight className="w-7 h-7" />
       </Button>
 
-      {/* Indicators */}
-      <div className="flex justify-center gap-3 mt-8">
+      {/* Indicators - Absolutely Positioned at Bottom */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex justify-center gap-3 z-10">
         {topics.map((_, index) => (
           <button
             key={index}
@@ -135,7 +135,7 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
             className={`h-2.5 rounded-full transition-all ${
               index === currentIndex
                 ? "w-12 bg-primary shadow-eco"
-                : "w-2.5 bg-border hover:bg-primary/50"
+                : "w-2.5 bg-card/80 backdrop-blur hover:bg-primary/50"
             }`}
           />
         ))}
