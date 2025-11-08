@@ -112,19 +112,23 @@ const Profile = () => {
             <Card className="p-6 space-y-6">
               <h2 className="text-2xl font-bold text-foreground">Awards / Achievements</h2>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {userData.achievements.length > 0 ? userData.achievements.map((achievement) => (
                   <div
                     key={achievement.id}
-                    className={`
-                      relative p-4 rounded-xl text-center transition-all
-                      transform rotate-45 overflow-hidden
-                      ${achievement.earned ? achievement.color + ' shadow-eco-lg hover:scale-110' : 'opacity-50'}
-                    `}
+                    className="flex flex-col items-center space-y-3"
                   >
-                    <div className="transform -rotate-45 space-y-1">
-                      <div className="text-3xl">{achievement.icon}</div>
-                      <p className="text-xs font-bold line-clamp-2">
+                    <div className={`
+                      w-24 h-24 rounded-full flex items-center justify-center text-4xl
+                      transition-all duration-300
+                      ${achievement.earned 
+                        ? achievement.color + ' shadow-eco-lg hover:scale-110 cursor-pointer' 
+                        : 'bg-muted/50 opacity-40 grayscale'}
+                    `}>
+                      {achievement.icon}
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-sm font-bold ${achievement.earned ? 'text-foreground' : 'text-muted-foreground'}`}>
                         {achievement.name}
                       </p>
                     </div>
