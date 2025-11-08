@@ -48,10 +48,10 @@ export const MiniLevelPath = () => {
       {/* Level Path */}
       <div className="relative py-8">
         {/* Connecting Line with Progress */}
-        <div className="absolute top-1/2 left-0 w-full h-2 -translate-y-1/2 bg-border/30 rounded-full overflow-hidden">
+        <div className="absolute top-1/2 left-0 w-full h-2 -translate-y-1/2 bg-muted rounded-full overflow-hidden">
           <div 
             className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-            style={{ width: `${(currentLevelIndex / (levels.length - 1)) * 100}%` }}
+            style={{ width: `${(completedCount / levels.length) * 100}%` }}
           />
         </div>
 
