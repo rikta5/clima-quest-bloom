@@ -106,7 +106,7 @@ export const MiniLevelPath = () => {
 
                 {/* Sparkle effect for active level */}
                 {isActive && (
-                  <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-primary animate-pulse" />
+                  <Sparkles className="absolute -top-2 -right-2 w-4 h-4 text-primary" />
                 )}
               </div>
             );
