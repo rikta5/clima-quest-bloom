@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Home, Target, User, Film, BookOpen, Sprout } from "lucide-react";
+import { Home, Target, User, Film, BookOpen } from "lucide-react";
 import { EcoPointsBadge } from "./EcoPointsBadge";
 import { StreakBadge } from "./StreakBadge";
+import mascotLogo from "@/assets/mascot-bird.png";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -28,8 +29,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-eco transition-transform group-hover:scale-110">
-                <Sprout className="w-6 h-6 text-primary-foreground" />
+              <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                <img 
+                  src={mascotLogo} 
+                  alt="ClimaQuest Logo" 
+                  className="w-full h-full object-contain drop-shadow-md"
+                />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ClimaQuest

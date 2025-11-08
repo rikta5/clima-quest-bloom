@@ -6,7 +6,7 @@ import { StreakBadge } from "@/components/StreakBadge";
 import { MiniLevelPath } from "@/components/MiniLevelPath";
 import { Sparkles, Play } from "lucide-react";
 import { Link } from "react-router-dom";
-import mascotImage from "@/assets/mascot.png";
+import mascotImage from "@/assets/mascot-bird.png";
 import reelThumbnail from "@/assets/reel-thumbnail.png";
 
 const Index = () => {
@@ -24,11 +24,11 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column - Mascot & Brand */}
           <Card className="lg:col-span-3 p-6 flex flex-col items-center text-center space-y-4 hover:shadow-eco-lg transition-all">
-            <div className="w-40 h-40 rounded-full bg-secondary/30 p-4 flex items-center justify-center">
+            <div className="w-48 h-48 flex items-center justify-center">
               <img 
                 src={mascotImage} 
-                alt="ClimaQuest Mascot" 
-                className="w-full h-full object-contain animate-bounce-slow"
+                alt="ClimaQuest Mascot - Climat the Bird" 
+                className="w-full h-full object-contain animate-bounce-slow drop-shadow-xl"
               />
             </div>
             <div className="space-y-2">
