@@ -12,6 +12,8 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import mascotImage from "@/assets/mascot-bird.png";
 import reelThumbnail from "@/assets/reel-thumbnail.png";
+import reelArcticIce from "@/assets/reel-arctic-ice.jpg";
+import reelOceanAcidification from "@/assets/reel-ocean-acidification.jpg";
 
 const Index = () => {
   const { userData, loading } = useUserProgress();
@@ -141,6 +143,7 @@ const Index = () => {
             
             <ReelCard
               title="Arctic Ice Melt Crisis"
+              thumbnail={reelArcticIce}
               category="Climate Science"
               duration="0:45"
               views="12.5K"
@@ -151,6 +154,7 @@ const Index = () => {
             
             <ReelCard
               title="Ocean Acidification"
+              thumbnail={reelOceanAcidification}
               category="Ocean Conservation"
               duration="0:52"
               views="15.2K"

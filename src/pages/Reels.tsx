@@ -5,6 +5,8 @@ import { Play, Sparkles, TrendingUp, Leaf } from "lucide-react";
 import { ReelPlayer } from "@/components/ReelPlayer";
 import { useState } from "react";
 import reelVertical from "@/assets/reel-vertical.png";
+import reelRenewableEnergy from "@/assets/reel-renewable-energy.jpg";
+import reelOceanVertical from "@/assets/reel-ocean-vertical.jpg";
 
 const Reels = () => {
   const [selectedReel, setSelectedReel] = useState<string | null>(null);
@@ -30,7 +32,8 @@ const Reels = () => {
       fact: "Solar power capacity grew by 23% globally last year",
       views: "8.3K",
       duration: "1:00",
-      category: "Solutions"
+      category: "Solutions",
+      thumbnail: reelRenewableEnergy
     },
     {
       id: 3,
@@ -38,7 +41,8 @@ const Reels = () => {
       fact: "Ocean pH has dropped by 0.1 units since pre-industrial times",
       views: "15.2K",
       duration: "0:52",
-      category: "Ocean Conservation"
+      category: "Ocean Conservation",
+      thumbnail: reelOceanVertical
     }
   ];
 
@@ -141,9 +145,20 @@ const Reels = () => {
                 onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", reel.title)}
               >
                 <div className="relative aspect-[9/16] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <Play className="w-16 h-16 text-muted-foreground/50" />
+                  {reel.thumbnail && (
+                    <img 
+                      src={reel.thumbnail} 
+                      alt={reel.title} 
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+                  {!reel.thumbnail && <Play className="w-16 h-16 text-muted-foreground/50" />}
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  
+                  <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg z-10">
+                    <Play className="w-8 h-8 text-primary fill-primary ml-1" />
+                  </button>
                   
                   <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
                     <Badge variant="outline" className="bg-black/50 text-white border-white/20 text-xs">
