@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Reels from "./pages/Reels";
 import Workflows from "./pages/Workflows";
 import NotFound from "./pages/NotFound";
+import ClimateLesson from "./components/ClimateLesson";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/reels" element={<Reels />} />
           <Route path="/workflows" element={<Workflows />} />
+          <Route path="/climate-lesson" element={<ClimateLesson />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
