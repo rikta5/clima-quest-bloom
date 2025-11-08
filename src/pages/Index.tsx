@@ -14,6 +14,8 @@ import mascotImage from "@/assets/mascot-bird.png";
 import reelThumbnail from "@/assets/reel-thumbnail.png";
 import reelArcticIce from "@/assets/reel-arctic-ice.jpg";
 import reelOceanAcidification from "@/assets/reel-ocean-acidification.jpg";
+import partnerAd1 from "@/assets/partner-ad-1.jpg";
+import partnerAd2 from "@/assets/partner-ad-2.jpg";
 
 const Index = () => {
   const { userData, loading } = useUserProgress();
@@ -102,14 +104,22 @@ const Index = () => {
           {/* Right Column - Eco Ads */}
           <Card className="lg:col-span-3 p-6 space-y-4">
             <h3 className="text-lg font-bold text-center text-foreground">
-              Eco Ads / Partners
+              Eco Partners
             </h3>
             <div className="space-y-3">
-              <div className="aspect-square rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center text-xs text-muted-foreground text-center p-4">
-                Partner Ad Slot 1
+              <div className="aspect-square rounded-lg overflow-hidden border border-border hover:shadow-eco transition-all cursor-pointer group">
+                <img 
+                  src={partnerAd1} 
+                  alt="Eco-friendly Electric Vehicles Partner" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
               </div>
-              <div className="aspect-square rounded-lg border-2 border-dashed border-border bg-muted/30 flex items-center justify-center text-xs text-muted-foreground text-center p-4">
-                Partner Ad Slot 2
+              <div className="aspect-square rounded-lg overflow-hidden border border-border hover:shadow-eco transition-all cursor-pointer group">
+                <img 
+                  src={partnerAd2} 
+                  alt="Renewable Energy Solutions Partner" 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
               </div>
             </div>
           </Card>
@@ -128,7 +138,7 @@ const Index = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ReelCard
               title="The Future of Renewable Energy"
               thumbnail={reelThumbnail}
@@ -138,7 +148,7 @@ const Index = () => {
               fact="Discover how solar and wind power are transforming our world"
               featured
               onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "The Future of Renewable Energy")}
-              className="md:col-span-2 lg:col-span-2"
+              className="md:col-span-2"
             />
             
             <ReelCard
@@ -149,18 +159,7 @@ const Index = () => {
               views="12.5K"
               fact="Arctic sea ice is declining at a rate of 13% per decade"
               onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Arctic Ice Melt Crisis")}
-              className="lg:col-span-1 md:col-span-1"
-            />
-            
-            <ReelCard
-              title="Ocean Acidification"
-              thumbnail={reelOceanAcidification}
-              category="Ocean Conservation"
-              duration="0:52"
-              views="15.2K"
-              fact="Ocean pH has dropped by 0.1 units since pre-industrial times"
-              onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Ocean Acidification")}
-              className="lg:col-span-1 md:col-span-1"
+              className="md:col-span-1"
             />
           </div>
           
