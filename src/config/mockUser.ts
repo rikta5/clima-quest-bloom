@@ -6,12 +6,6 @@ export interface Achievement {
   earned: boolean;
 }
 
-export interface CompletedTopic {
-  id: number;
-  name: string;
-  completed: boolean;
-}
-
 export interface MockUser {
   name: string;
   email: string;
@@ -20,7 +14,6 @@ export interface MockUser {
   ecoPoints: number;
   maxPoints: number;
   achievements: Achievement[];
-  completedTopics: CompletedTopic[];
 }
 
 export const mockUser: MockUser = {
@@ -73,14 +66,5 @@ export const mockUser: MockUser = {
       color: "bg-muted text-muted-foreground",
       earned: false
     }
-  ],
-  completedTopics: [
-    { id: 1, name: "Climate Basics", completed: true },
-    { id: 2, name: "E-Waste", completed: true },
-    { id: 3, name: "Renewable Energy", completed: true },
-    { id: 4, name: "Ocean Conservation", completed: false },
-    { id: 5, name: "Sustainable Living", completed: false },
-    { id: 6, name: "Biodiversity", completed: false },
-    { id: 7, name: "Climate Action", completed: false }
   ]
 };

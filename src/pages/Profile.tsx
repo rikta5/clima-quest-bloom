@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { mockUser } from "@/config/mockUser";
+import { topics } from "@/config/levelsConfig";
 import { Mail, Phone, User, CheckCircle2, Circle } from "lucide-react";
 
 const Profile = () => {
@@ -113,30 +114,40 @@ const Profile = () => {
             <Card className="p-6 space-y-4">
               <h2 className="text-2xl font-bold text-foreground">Completed Topics</h2>
               
-              <div className="space-y-3">
-                {user.completedTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    className={`
-                      flex items-center gap-3 p-3 rounded-lg border transition-all
-                      ${topic.completed 
-                        ? 'border-accent bg-accent/5 hover:bg-accent/10' 
-                        : 'border-border bg-muted/30'}
-                    `}
-                  >
-                    {topic.completed ? (
-                      <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
-                    ) : (
-                      <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                    )}
-                    <span className={`
-                      font-medium
-                      ${topic.completed ? 'text-foreground' : 'text-muted-foreground'}
-                    `}>
-                      Level {topic.id}: {topic.name}
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                {topics.map((topic) => {
+                  const completedLevels = topic.levels.filter(l => l.status === "completed").length;
+                  const totalLevels = topic.levels.length;
+                  const isTopicCompleted = completedLevels === totalLevels;
+                  
+                  return (
+                    <div key={topic.id} className="space-y-2">
+                      <div className={`
+                        flex items-center gap-3 p-3 rounded-lg border transition-all
+                        ${isTopicCompleted 
+                          ? 'border-accent bg-accent/5 hover:bg-accent/10' 
+                          : 'border-border bg-muted/30'}
+                      `}>
+                        {isTopicCompleted ? (
+                          <CheckCircle2 className="w-5 h-5 text-accent flex-shrink-0" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                        )}
+                        <div className="flex-1">
+                          <span className={`
+                            font-medium
+                            ${isTopicCompleted ? 'text-foreground' : 'text-muted-foreground'}
+                          `}>
+                            {topic.name}
+                          </span>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {completedLevels} / {totalLevels} levels completed
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </Card>
           </div>

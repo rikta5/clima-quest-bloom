@@ -1,8 +1,8 @@
 import { MainLayout } from "@/components/MainLayout";
 import { Card } from "@/components/ui/card";
-import { LevelPath } from "@/components/LevelPath";
+import { TopicSection } from "@/components/TopicSection";
 import { LevelNode } from "@/components/LevelNode";
-import { coreLevels, bonusLevels } from "@/config/levelsConfig";
+import { topics, bonusLevels } from "@/config/levelsConfig";
 import { Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -26,10 +26,12 @@ const Levels = () => {
           </p>
         </div>
 
-        {/* Main Level Path */}
-        <Card className="p-8 overflow-hidden">
-          <LevelPath levels={coreLevels} />
-        </Card>
+        {/* Topic Sections - Each topic with its own level path */}
+        <div className="space-y-8">
+          {topics.map((topic) => (
+            <TopicSection key={topic.id} topic={topic} />
+          ))}
+        </div>
 
         {/* Bonus Levels Section */}
         <div className="space-y-6">

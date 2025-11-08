@@ -2,7 +2,7 @@ import { MainLayout } from "@/components/MainLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useParams, useNavigate } from "react-router-dom";
-import { coreLevels } from "@/config/levelsConfig";
+import { findLevelById } from "@/config/levelsConfig";
 import { ArrowLeft, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -13,7 +13,7 @@ const LevelDetail = () => {
   const navigate = useNavigate();
   const levelId = parseInt(id || "1");
   
-  const level = coreLevels.find(l => l.id === levelId);
+  const level = findLevelById(levelId);
   
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
