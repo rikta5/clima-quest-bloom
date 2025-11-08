@@ -1,7 +1,7 @@
 import { NodeCircle } from "./NodeCircle";
 import { Play, Sparkles, Lock, CheckCircle2, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { coreLevels } from "@/config/levelsConfig";
+import { coreLevels, topics } from "@/config/levelsConfig";
 
 export const MiniLevelPath = () => {
   const navigate = useNavigate();
@@ -10,6 +10,11 @@ export const MiniLevelPath = () => {
   const levels = coreLevels.slice(0, 5);
   const currentLevelIndex = 2; // Mock current level (Level 3)
   const currentLevel = levels[currentLevelIndex];
+  
+  // Find the topic that contains the current level
+  const currentTopic = topics.find(topic => 
+    topic.levels.some(level => level.id === currentLevel.id)
+  );
 
   const getNodeStatus = (index: number) => {
     if (index < currentLevelIndex) return "completed" as const;
@@ -24,7 +29,7 @@ export const MiniLevelPath = () => {
         <div className="flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Climate Fundamentals
+            {currentTopic?.name || "Climate Fundamentals"}
           </span>
         </div>
         <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
@@ -56,9 +61,8 @@ export const MiniLevelPath = () => {
                 {isActive ? (
                   <button
                     onClick={() => navigate("/levels")}
-                    className="relative w-20 h-20 bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-full shadow-eco-lg flex items-center justify-center font-bold text-lg hover:scale-110 transition-all duration-300 animate-pulse"
+                    className="relative w-20 h-20 bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-full shadow-eco-lg flex items-center justify-center font-bold text-lg hover:scale-110 transition-all duration-300"
                   >
-                    <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
                     <div className="relative flex flex-col items-center">
                       <Play className="w-8 h-8 fill-current" />
                       <span className="text-xs mt-1">Play</span>
