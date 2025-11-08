@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Topic } from "@/config/levelsConfig";
 import { useNavigate } from "react-router-dom";
+import { useLevelProgress } from "@/hooks/useLevelProgress";
 
 interface TopicCarouselProps {
   topics: Topic[];
@@ -13,6 +14,7 @@ interface TopicCarouselProps {
 export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+  const { getLevelStatus } = useLevelProgress();
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % topics.length);
@@ -24,7 +26,7 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
 
   const currentTopic = topics[currentIndex];
   const coreLevels = currentTopic.levels.filter((l) => l.type === "core");
-  const completedCount = coreLevels.filter((l) => l.status === "completed").length;
+  const completedCount = coreLevels.filter((l) => getLevelStatus(l.id) === "completed").length;
 
   const complexityColors = {
     Beginner: "bg-accent text-accent-foreground",

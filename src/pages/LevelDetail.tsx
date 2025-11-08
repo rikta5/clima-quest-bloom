@@ -8,18 +8,21 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { EcoPointsBadge } from "@/components/EcoPointsBadge";
 import { LevelTransition } from "@/components/LevelTransition";
+import { useLevelProgress } from "@/hooks/useLevelProgress";
+import { toast } from "sonner";
 
 const LevelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const levelId = parseInt(id || "1");
+  const { userData, getLevelStatus, completeLevel } = useLevelProgress();
   
   const level = findLevelById(levelId);
   const nextLevel = level ? getNextLevel(levelId) : undefined;
+  const currentStatus = getLevelStatus(levelId);
   
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [localEcoPoints, setLocalEcoPoints] = useState(0);
   const [showTransition, setShowTransition] = useState(false);
 
   if (!level) {
@@ -35,17 +38,19 @@ const LevelDetail = () => {
     );
   }
 
-  const isLocked = level.status === "locked";
+  const isLocked = currentStatus === "locked";
+  const isCompleted = currentStatus === "completed";
   const isCorrect = selectedAnswer === level.quiz?.correctAnswer;
 
-  const handleAnswerClick = (answerIndex: number) => {
-    if (showFeedback) return;
+  const handleAnswerClick = async (answerIndex: number) => {
+    if (showFeedback || isCompleted) return;
     
     setSelectedAnswer(answerIndex);
     setShowFeedback(true);
     
-    if (answerIndex === level.quiz?.correctAnswer) {
-      setLocalEcoPoints(prev => prev + 10);
+    if (answerIndex === level.quiz?.correctAnswer && !isCompleted) {
+      await completeLevel(levelId, 10);
+      toast.success("Level completed! +10 points 🎉");
     }
   };
 
@@ -98,10 +103,10 @@ const LevelDetail = () => {
             Back to Levels
           </Button>
           
-          {localEcoPoints > 0 && (
+          {userData && (
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-orange animate-pulse" />
-              <EcoPointsBadge points={localEcoPoints} size="md" />
+              <Sparkles className="w-5 h-5 text-orange" />
+              <EcoPointsBadge points={userData.ecoPoints} size="md" />
             </div>
           )}
         </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Lock, CheckCircle2 } from "lucide-react";
 import { topics } from "@/config/levelsConfig";
+import { useLevelProgress } from "@/hooks/useLevelProgress";
 import {
   ReactFlow,
   Background,
@@ -18,6 +19,7 @@ import "@xyflow/react/dist/style.css";
 const TopicMap = () => {
   const { topicId } = useParams();
   const navigate = useNavigate();
+  const { getLevelStatus } = useLevelProgress();
 
   const topic = topics.find((t) => t.id === topicId);
 
@@ -26,15 +28,21 @@ const TopicMap = () => {
   const horizontalSpacing = 250;
   const verticalSpacing = 200;
 
-  // Separate core and bonus levels
+  // Separate core and bonus levels with dynamic status
   const coreLevels = useMemo(() => 
-    topic?.levels.filter(l => l.type === "core") || [], 
-    [topic]
+    topic?.levels.filter(l => l.type === "core").map(level => ({
+      ...level,
+      status: getLevelStatus(level.id)
+    })) || [], 
+    [topic, getLevelStatus]
   );
   
   const bonusLevels = useMemo(() => 
-    topic?.levels.filter(l => l.type === "bonus") || [], 
-    [topic]
+    topic?.levels.filter(l => l.type === "bonus").map(level => ({
+      ...level,
+      status: getLevelStatus(level.id)
+    })) || [], 
+    [topic, getLevelStatus]
   );
 
   // Check if all core levels are completed to unlock bonus levels

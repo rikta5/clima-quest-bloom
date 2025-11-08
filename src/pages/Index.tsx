@@ -4,18 +4,37 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EcoPointsBadge } from "@/components/EcoPointsBadge";
 import { StreakBadge } from "@/components/StreakBadge";
 import { MiniLevelPath } from "@/components/MiniLevelPath";
-import { Sparkles, Play } from "lucide-react";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import { Sparkles, Play, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import mascotImage from "@/assets/mascot-bird.png";
 import reelThumbnail from "@/assets/reel-thumbnail.png";
 
 const Index = () => {
-  // Mock data - will be replaced with real data later
-  const userData = {
-    initials: "CC",
-    ecoPoints: 32,
-    streak: 5,
-  };
+  const { userData, loading } = useUserProgress();
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Unable to load user data</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const avatarInitials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  const streak = 5; // TODO: Calculate actual streak from login history
 
   return (
     <MainLayout>
@@ -48,12 +67,12 @@ const Index = () => {
               <div className="flex items-center gap-4">
                 <Avatar className="w-16 h-16 border-4 border-primary shadow-eco">
                   <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
-                    {userData.initials}
+                    {avatarInitials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <EcoPointsBadge points={userData.ecoPoints} size="lg" />
-                  <StreakBadge days={userData.streak} size="lg" />
+                  <StreakBadge days={streak} size="lg" />
                 </div>
               </div>
             </div>

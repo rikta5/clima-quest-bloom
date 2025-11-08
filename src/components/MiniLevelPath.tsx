@@ -1,20 +1,38 @@
 import { NodeCircle } from "./NodeCircle";
 import { Play, Sparkles, Lock, CheckCircle2, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { coreLevels, topics } from "@/config/levelsConfig";
+import { coreLevels, topics, LevelStatus } from "@/config/levelsConfig";
+import { useUserProgress } from "@/hooks/useUserProgress";
 
 export const MiniLevelPath = () => {
   const navigate = useNavigate();
+  const { userData } = useUserProgress();
 
   // Get first 5 levels from the config
   const levels = coreLevels.slice(0, 5);
   
+  // Helper to get level status from user progress
+  const getLevelStatus = (levelId: number): LevelStatus => {
+    if (!userData?.levelProgress) {
+      // Default: first level unlocked, rest locked
+      return levelId === 1 ? "unlocked" : "locked";
+    }
+    const status = userData.levelProgress[levelId];
+    return (status as LevelStatus) || "locked";
+  };
+  
+  // Get levels with their dynamic status
+  const levelsWithStatus = levels.map(level => ({
+    ...level,
+    status: getLevelStatus(level.id)
+  }));
+  
   // Find the first unlocked level as the current active level
-  const currentLevelIndex = levels.findIndex(level => level.status === "unlocked");
-  const currentLevel = currentLevelIndex >= 0 ? levels[currentLevelIndex] : levels[0];
+  const currentLevelIndex = levelsWithStatus.findIndex(level => level.status === "unlocked");
+  const currentLevel = currentLevelIndex >= 0 ? levelsWithStatus[currentLevelIndex] : levelsWithStatus[0];
   
   // Count completed levels
-  const completedCount = levels.filter(level => level.status === "completed").length;
+  const completedCount = levelsWithStatus.filter(level => level.status === "completed").length;
   
   // Find the topic that contains the current level
   const currentTopic = topics.find(topic => 
@@ -22,7 +40,7 @@ export const MiniLevelPath = () => {
   );
 
   const getNodeStatus = (index: number) => {
-    const level = levels[index];
+    const level = levelsWithStatus[index];
     if (level.status === "completed") return "completed" as const;
     if (level.status === "unlocked") return "active" as const;
     return "locked" as const;
@@ -58,7 +76,7 @@ export const MiniLevelPath = () => {
 
         {/* Nodes */}
         <div className="relative flex items-center justify-between px-4">
-          {levels.map((level, index) => {
+          {levelsWithStatus.map((level, index) => {
             const status = getNodeStatus(index);
             // Only the first unlocked level gets the big Play button
             const isActive = index === currentLevelIndex && level.status === "unlocked";
