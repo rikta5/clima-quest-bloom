@@ -23,6 +23,8 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
   };
 
   const currentTopic = topics[currentIndex];
+  const coreLevels = currentTopic.levels.filter(l => l.type === "core");
+  const completedCount = coreLevels.filter(l => l.status === "completed").length;
 
   const complexityColors = {
     Beginner: "bg-accent text-accent-foreground",
@@ -31,61 +33,74 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
   };
 
   return (
-    <div className="relative max-w-5xl mx-auto">
-      {/* Main Carousel Card */}
-      <Card className="overflow-hidden shadow-eco-lg">
-        <div className="grid md:grid-cols-2 gap-0">
-          {/* Image Section */}
-          <div className="relative h-64 md:h-auto">
+    <div className="relative h-full flex flex-col items-center justify-center px-8 max-w-7xl mx-auto">
+      {/* Main Full-Page Card */}
+      <Card className="w-full shadow-2xl border-2 overflow-hidden">
+        <div className="grid md:grid-cols-2 gap-0 h-full">
+          {/* Image Section - Full Height */}
+          <div className="relative h-[50vh] md:h-[70vh]">
             <img
               src={currentTopic.image}
               alt={currentTopic.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <Badge 
-              className={`absolute top-4 right-4 ${complexityColors[currentTopic.complexity]}`}
+              className={`absolute top-6 right-6 text-base px-6 py-2 ${complexityColors[currentTopic.complexity]}`}
             >
               {currentTopic.complexity}
             </Badge>
           </div>
 
           {/* Content Section */}
-          <div className="p-8 flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold text-foreground">
+          <div className="p-12 flex flex-col justify-center space-y-8">
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
                   {currentTopic.name}
                 </h2>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-muted-foreground text-xl leading-relaxed">
                   {currentTopic.description}
                 </p>
               </div>
 
-              <div className="flex items-center gap-4 pt-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Levels:</span>
-                  <Badge variant="outline">{currentTopic.levels.length}</Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Progress:</span>
-                  <Badge variant="outline">
-                    {currentTopic.levels.filter(l => l.status === "completed").length} / {currentTopic.levels.length}
+              {/* Stats */}
+              <div className="flex items-center gap-6 pt-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-base text-muted-foreground font-medium">Total Levels:</span>
+                  <Badge variant="outline" className="text-base px-4 py-1.5">
+                    {currentTopic.levels.length}
                   </Badge>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-base">
+                  <span className="text-muted-foreground font-medium">Your Progress</span>
+                  <span className="font-bold text-foreground">
+                    {completedCount} / {coreLevels.length} Core Levels
+                  </span>
+                </div>
+                <div className="h-4 bg-muted rounded-full overflow-hidden shadow-inner">
+                  <div
+                    className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-700 shadow-eco"
+                    style={{
+                      width: `${coreLevels.length > 0 ? (completedCount / coreLevels.length) * 100 : 0}%`,
+                    }}
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4 mt-6">
-              <Button
-                size="lg"
-                className="w-full gap-2 shadow-eco hover:shadow-eco-lg transition-all"
-                onClick={() => navigate(`/levels/topic/${currentTopic.id}`)}
-              >
-                Enter Topic
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </div>
+            <Button
+              size="lg"
+              className="w-full gap-3 h-16 text-xl font-semibold shadow-eco-lg hover:shadow-eco transition-all"
+              onClick={() => navigate(`/levels/topic/${currentTopic.id}`)}
+            >
+              Start Learning
+              <ArrowRight className="w-6 h-6" />
+            </Button>
           </div>
         </div>
       </Card>
@@ -94,31 +109,33 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
       <Button
         variant="outline"
         size="icon"
-        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full w-12 h-12 shadow-lg bg-card hover:bg-primary hover:text-primary-foreground"
+        className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-xl bg-card/90 backdrop-blur hover:bg-primary hover:text-primary-foreground transition-all"
         onClick={prevSlide}
+        disabled={currentIndex === 0}
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-7 h-7" />
       </Button>
 
       <Button
         variant="outline"
         size="icon"
-        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full w-12 h-12 shadow-lg bg-card hover:bg-primary hover:text-primary-foreground"
+        className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full w-14 h-14 shadow-xl bg-card/90 backdrop-blur hover:bg-primary hover:text-primary-foreground transition-all"
         onClick={nextSlide}
+        disabled={currentIndex === topics.length - 1}
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-7 h-7" />
       </Button>
 
       {/* Indicators */}
-      <div className="flex justify-center gap-2 mt-6">
+      <div className="flex justify-center gap-3 mt-8">
         {topics.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`h-2 rounded-full transition-all ${
+            className={`h-2.5 rounded-full transition-all ${
               index === currentIndex
-                ? "w-8 bg-primary"
-                : "w-2 bg-border hover:bg-primary/50"
+                ? "w-12 bg-primary shadow-eco"
+                : "w-2.5 bg-border hover:bg-primary/50"
             }`}
           />
         ))}
