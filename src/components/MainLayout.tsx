@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Home, Target, User, Film, BookOpen } from "lucide-react";
 import { EcoPointsBadge } from "./EcoPointsBadge";
 import { StreakBadge } from "./StreakBadge";
@@ -9,6 +9,8 @@ interface MainLayoutProps {
 }
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
+  const location = useLocation();
+  
   // Mock data - will be replaced with real data later
   const ecoPoints = 1250;
   const streak = 7;
@@ -20,6 +22,13 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
     { to: "/reels", icon: Film, label: "Reels" },
     { to: "/workflows", icon: BookOpen, label: "Docs" },
   ];
+
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -47,7 +56,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-foreground hover:bg-muted hover:text-primary transition-all font-medium"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    isActive(item.to)
+                      ? "bg-primary text-primary-foreground shadow-eco"
+                      : "text-foreground hover:bg-muted hover:text-primary"
+                  }`}
                 >
                   <item.icon size={18} />
                   <span>{item.label}</span>
@@ -71,7 +84,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
             <Link
               key={item.to}
               to={item.to}
-              className="flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted transition-all"
+              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-lg transition-all ${
+                isActive(item.to)
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-primary hover:bg-muted"
+              }`}
             >
               <item.icon size={20} />
               <span className="text-xs font-medium">{item.label}</span>
