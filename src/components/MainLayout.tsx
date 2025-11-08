@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, Target, User, Film, BookOpen } from "lucide-react";
 import { EcoPointsBadge } from "./EcoPointsBadge";
 import { StreakBadge } from "./StreakBadge";
+import { useUserProgress } from "@/hooks/useUserProgress";
 import mascotLogo from "@/assets/mascot-bird.png";
 
 interface MainLayoutProps {
@@ -10,10 +11,10 @@ interface MainLayoutProps {
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
+  const { userData } = useUserProgress();
   
-  // Mock data - will be replaced with real data later
-  const ecoPoints = 1250;
-  const streak = 7;
+  const ecoPoints = userData?.ecoPoints || 0;
+  const streak = userData?.streak || 0;
 
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
