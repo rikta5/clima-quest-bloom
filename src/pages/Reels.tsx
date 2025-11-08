@@ -2,9 +2,19 @@ import { MainLayout } from "@/components/MainLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Sparkles, TrendingUp, Leaf } from "lucide-react";
+import { ReelPlayer } from "@/components/ReelPlayer";
+import { useState } from "react";
 import reelVertical from "@/assets/reel-vertical.png";
 
 const Reels = () => {
+  const [selectedReel, setSelectedReel] = useState<string | null>(null);
+  const [reelTitle, setReelTitle] = useState("");
+
+  const handleReelClick = (videoUrl: string, title: string) => {
+    setSelectedReel(videoUrl);
+    setReelTitle(title);
+  };
+
   const sampleReels = [
     {
       id: 1,
@@ -51,7 +61,10 @@ const Reels = () => {
 
         {/* Featured Reel - Large Vertical Card */}
         <div className="max-w-md mx-auto">
-          <Card className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all">
+          <Card 
+            className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all"
+            onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", sampleReels[0].title)}
+          >
             <div className="relative aspect-[9/16] bg-black">
               <img 
                 src={reelVertical} 
@@ -122,7 +135,11 @@ const Reels = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {sampleReels.slice(1).map((reel) => (
-              <Card key={reel.id} className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all">
+              <Card 
+                key={reel.id} 
+                className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all"
+                onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", reel.title)}
+              >
                 <div className="relative aspect-[9/16] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
                   <Play className="w-16 h-16 text-muted-foreground/50" />
                   
@@ -148,6 +165,13 @@ const Reels = () => {
             ))}
           </div>
         </div>
+
+        <ReelPlayer
+          isOpen={selectedReel !== null}
+          onClose={() => setSelectedReel(null)}
+          videoUrl={selectedReel || ""}
+          title={reelTitle}
+        />
       </div>
     </MainLayout>
   );

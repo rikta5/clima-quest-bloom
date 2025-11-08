@@ -4,14 +4,24 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { EcoPointsBadge } from "@/components/EcoPointsBadge";
 import { StreakBadge } from "@/components/StreakBadge";
 import { MiniLevelPath } from "@/components/MiniLevelPath";
+import { ReelCard } from "@/components/ReelCard";
+import { ReelPlayer } from "@/components/ReelPlayer";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { Sparkles, Play, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import mascotImage from "@/assets/mascot-bird.png";
 import reelThumbnail from "@/assets/reel-thumbnail.png";
 
 const Index = () => {
   const { userData, loading } = useUserProgress();
+  const [selectedReel, setSelectedReel] = useState<string | null>(null);
+  const [reelTitle, setReelTitle] = useState("");
+
+  const handleReelClick = (videoUrl: string, title: string) => {
+    setSelectedReel(videoUrl);
+    setReelTitle(title);
+  };
 
   if (loading) {
     return (
@@ -117,45 +127,45 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Featured Reel */}
-            <Card className="md:col-span-2 lg:col-span-2 overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all">
-              <div className="relative aspect-video">
-                <img 
-                  src={reelThumbnail} 
-                  alt="Renewable Energy Reel" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-primary px-3 py-1 rounded-full text-xs font-semibold">
-                      Featured
-                    </span>
-                    <span className="text-xs opacity-90">3:45</span>
-                  </div>
-                  <h3 className="text-xl font-bold">The Future of Renewable Energy</h3>
-                  <p className="text-sm opacity-90">
-                    Discover how solar and wind power are transforming our world
-                  </p>
-                </div>
-                <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                  <Play className="w-8 h-8 text-primary fill-primary ml-1" />
-                </button>
-              </div>
-            </Card>
-
-            {/* Placeholder Reels */}
-            {[1, 2].map((i) => (
-              <Card key={i} className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all lg:col-span-1 md:col-span-1">
-                <div className="relative aspect-video bg-muted flex items-center justify-center">
-                  <Play className="w-12 h-12 text-muted-foreground/50" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                    <span className="text-white text-sm font-semibold">Coming Soon</span>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            <ReelCard
+              title="The Future of Renewable Energy"
+              thumbnail={reelThumbnail}
+              category="Featured"
+              duration="3:45"
+              views="45.2K"
+              fact="Discover how solar and wind power are transforming our world"
+              featured
+              onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "The Future of Renewable Energy")}
+              className="md:col-span-2 lg:col-span-2"
+            />
+            
+            <ReelCard
+              title="Arctic Ice Melt Crisis"
+              category="Climate Science"
+              duration="0:45"
+              views="12.5K"
+              fact="Arctic sea ice is declining at a rate of 13% per decade"
+              onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Arctic Ice Melt Crisis")}
+              className="lg:col-span-1 md:col-span-1"
+            />
+            
+            <ReelCard
+              title="Ocean Acidification"
+              category="Ocean Conservation"
+              duration="0:52"
+              views="15.2K"
+              fact="Ocean pH has dropped by 0.1 units since pre-industrial times"
+              onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Ocean Acidification")}
+              className="lg:col-span-1 md:col-span-1"
+            />
           </div>
+          
+          <ReelPlayer
+            isOpen={selectedReel !== null}
+            onClose={() => setSelectedReel(null)}
+            videoUrl={selectedReel || ""}
+            title={reelTitle}
+          />
         </div>
       </div>
     </MainLayout>
