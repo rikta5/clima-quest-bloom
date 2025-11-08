@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { topics } from "@/config/levelsConfig";
+import { useTopics } from "@/hooks/useTopics";
 import { Mail, User, CheckCircle2, Circle, LogOut, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 const Profile = () => {
   const { user: authUser, logout } = useAuth();
   const { userData, loading } = useUserProgress();
+  const { topics } = useTopics();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -161,11 +162,11 @@ const Profile = () => {
               
               <div className="space-y-4">
                 {topics.map((topic) => {
-                  const completedLevels = topic.levels.filter(l => 
+                  const completedLevels = topic.levels?.filter(l => 
                     userData.levelProgress[l.id] === "completed"
-                  ).length;
-                  const totalLevels = topic.levels.length;
-                  const isTopicCompleted = completedLevels === totalLevels;
+                  ).length || 0;
+                  const totalLevels = topic.levels?.length || 0;
+                  const isTopicCompleted = totalLevels > 0 && completedLevels === totalLevels;
                   
                   return (
                     <div key={topic.id} className="space-y-2">

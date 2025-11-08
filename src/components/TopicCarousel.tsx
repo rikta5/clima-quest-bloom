@@ -3,9 +3,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { Topic } from "@/config/levelsConfig";
 import { useNavigate } from "react-router-dom";
 import { useLevelProgress } from "@/hooks/useLevelProgress";
+
+interface Topic {
+  id: string;
+  name: string;
+  description: string;
+  complexity: "Beginner" | "Intermediate" | "Advanced";
+  image: string;
+  levels: any[];
+}
 
 interface TopicCarouselProps {
   topics: Topic[];

@@ -1,15 +1,17 @@
 import { NodeCircle } from "./NodeCircle";
 import { Play, Sparkles, Lock, CheckCircle2, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { coreLevels, topics } from "@/config/levelsConfig";
 import { useLevelProgress } from "@/hooks/useLevelProgress";
+import { useTopics } from "@/hooks/useTopics";
 
 export const MiniLevelPath = () => {
   const navigate = useNavigate();
   const { getLevelStatus } = useLevelProgress();
+  const { topics } = useTopics();
 
-  // Get first 5 levels from the config
-  const levels = coreLevels.slice(0, 5);
+  // Get first topic and first 5 levels
+  const firstTopic = topics[0];
+  const levels = firstTopic?.levels.slice(0, 5) || [];
   
   // Get levels with their dynamic status from Firebase
   const levelsWithStatus = levels.map(level => ({
@@ -24,10 +26,8 @@ export const MiniLevelPath = () => {
   // Count completed levels
   const completedCount = levelsWithStatus.filter(level => level.status === "completed").length;
   
-  // Find the topic that contains the current level
-  const currentTopic = topics.find(topic => 
-    topic.levels.some(level => level.id === currentLevel.id)
-  );
+  // Use the first topic
+  const currentTopic = firstTopic;
 
   const getNodeStatus = (index: number) => {
     const level = levelsWithStatus[index];
@@ -43,14 +43,14 @@ export const MiniLevelPath = () => {
         <div className="flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            {currentTopic?.name || "Climate Fundamentals"}
+            {currentTopic?.name || "Loading..."}
           </span>
         </div>
         <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-          {currentLevel.title}
+          {currentLevel?.title || "Start Your Journey"}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Level {currentLevel.id} • {completedCount} of {levels.length} completed
+          {currentLevel ? `Level ${currentLevel.id} • ` : ''}{completedCount} of {levels.length} completed
         </p>
       </div>
 

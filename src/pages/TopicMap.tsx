@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Lock, CheckCircle2 } from "lucide-react";
-import { topics } from "@/config/levelsConfig";
+import { ArrowLeft, Lock, CheckCircle2, Loader2 } from "lucide-react";
+import { useTopics } from "@/hooks/useTopics";
 import { useLevelProgress } from "@/hooks/useLevelProgress";
 import {
   ReactFlow,
@@ -19,9 +19,20 @@ import "@xyflow/react/dist/style.css";
 const TopicMap = () => {
   const { topicId } = useParams();
   const navigate = useNavigate();
+  const { topics, loading: topicsLoading } = useTopics();
   const { getLevelStatus } = useLevelProgress();
 
   const topic = topics.find((t) => t.id === topicId);
+
+  if (topicsLoading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   const nodeWidth = 150;
   const nodeHeight = 150;
