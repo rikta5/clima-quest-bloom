@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Target, User, Film, BookOpen } from "lucide-react";
+import { Home, Target, User, Film } from "lucide-react";
 import { EcoPointsBadge } from "./EcoPointsBadge";
 import { StreakBadge } from "./StreakBadge";
 import { useUserProgress } from "@/hooks/useUserProgress";
@@ -21,7 +21,6 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
     { to: "/levels", icon: Target, label: "Levels" },
     { to: "/profile", icon: User, label: "Profile" },
     { to: "/reels", icon: Film, label: "Reels" },
-    { to: "/workflows", icon: BookOpen, label: "Docs" },
   ];
 
   const isActive = (path: string) => {

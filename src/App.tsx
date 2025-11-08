@@ -12,7 +12,6 @@ import TopicMap from "./pages/TopicMap";
 import LevelDetail from "./pages/LevelDetail";
 import Profile from "./pages/Profile";
 import Reels from "./pages/Reels";
-import Workflows from "./pages/Workflows";
 import NotFound from "./pages/NotFound";
 import ClimateLesson from "./components/ClimateLesson";
 import Auth from "./pages/Auth";
@@ -45,7 +44,6 @@ const App = () => (
             <Route path="/levels/:id" element={<ProtectedRoute><LevelDetail /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
-            <Route path="/workflows" element={<ProtectedRoute><Workflows /></ProtectedRoute>} />
             <Route path="/climate-lesson" element={<ProtectedRoute><ClimateLesson /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
