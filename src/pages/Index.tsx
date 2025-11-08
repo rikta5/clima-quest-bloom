@@ -139,28 +139,40 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ReelCard
-              title="The Future of Renewable Energy"
-              thumbnail={reelThumbnail}
-              category="Featured"
-              duration="3:45"
-              views="45.2K"
-              fact="Discover how solar and wind power are transforming our world"
-              featured
-              onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "The Future of Renewable Energy")}
-              className="md:col-span-2"
-            />
+            <div className="md:col-span-2">
+              <ReelCard
+                title="The Future of Renewable Energy"
+                thumbnail={reelThumbnail}
+                category="Featured"
+                duration="3:45"
+                views="45.2K"
+                fact="Discover how solar and wind power are transforming our world"
+                featured
+                onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "The Future of Renewable Energy")}
+              />
+            </div>
             
-            <ReelCard
-              title="Arctic Ice Melt Crisis"
-              thumbnail={reelArcticIce}
-              category="Climate Science"
-              duration="0:45"
-              views="12.5K"
-              fact="Arctic sea ice is declining at a rate of 13% per decade"
-              onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Arctic Ice Melt Crisis")}
-              className="md:col-span-1"
-            />
+            <div className="md:col-span-1 flex flex-col gap-6">
+              <ReelCard
+                title="Arctic Ice Melt Crisis"
+                thumbnail={reelArcticIce}
+                category="Climate Science"
+                duration="0:45"
+                views="12.5K"
+                fact="Arctic sea ice is declining at a rate of 13% per decade"
+                onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Arctic Ice Melt Crisis")}
+              />
+              
+              <ReelCard
+                title="Ocean Acidification"
+                thumbnail={reelOceanAcidification}
+                category="Ocean Conservation"
+                duration="0:52"
+                views="15.2K"
+                fact="Ocean pH has dropped by 0.1 units since pre-industrial times"
+                onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", "Ocean Acidification")}
+              />
+            </div>
           </div>
           
           <ReelPlayer
