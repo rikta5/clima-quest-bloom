@@ -23,29 +23,25 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
   };
 
   const currentTopic = topics[currentIndex];
-  const coreLevels = currentTopic.levels.filter(l => l.type === "core");
-  const completedCount = coreLevels.filter(l => l.status === "completed").length;
+  const coreLevels = currentTopic.levels.filter((l) => l.type === "core");
+  const completedCount = coreLevels.filter((l) => l.status === "completed").length;
 
   const complexityColors = {
     Beginner: "bg-accent text-accent-foreground",
     Intermediate: "bg-orange text-white",
-    Advanced: "bg-destructive text-destructive-foreground"
+    Advanced: "bg-destructive text-destructive-foreground",
   };
 
   return (
     <div className="relative w-full h-[calc(100vh-80px)]">
       {/* Main Full-Width Slide */}
-      <Card className="w-full h-full shadow-2xl border-none rounded-none overflow-hidden">
+      <Card className="w-full h-full shadow-2xl border-none rounded-none overflow-hidden border-red-500 border-4">
         <div className="grid md:grid-cols-2 gap-0 h-full">
           {/* Image Section */}
           <div className="relative h-full">
-            <img
-              src={currentTopic.image}
-              alt={currentTopic.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={currentTopic.image} alt={currentTopic.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            <Badge 
+            <Badge
               className={`absolute top-8 right-8 text-base px-6 py-2 ${complexityColors[currentTopic.complexity]}`}
             >
               {currentTopic.complexity}
@@ -56,12 +52,8 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
           <div className="p-12 md:p-16 flex flex-col justify-center space-y-8">
             <div className="space-y-6">
               <div className="space-y-4">
-                <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
-                  {currentTopic.name}
-                </h2>
-                <p className="text-muted-foreground text-xl leading-relaxed">
-                  {currentTopic.description}
-                </p>
+                <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">{currentTopic.name}</h2>
+                <p className="text-muted-foreground text-xl leading-relaxed">{currentTopic.description}</p>
               </div>
 
               {/* Stats */}
