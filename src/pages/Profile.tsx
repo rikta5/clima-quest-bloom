@@ -3,13 +3,51 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { mockUser } from "@/config/mockUser";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserProgress } from "@/hooks/useUserProgress";
 import { topics } from "@/config/levelsConfig";
-import { Mail, Phone, User, CheckCircle2, Circle } from "lucide-react";
+import { Mail, User, CheckCircle2, Circle, LogOut, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Profile = () => {
-  const user = mockUser;
-  const progressPercentage = (user.ecoPoints / user.maxPoints) * 100;
+  const { user: authUser, logout } = useAuth();
+  const { userData, loading } = useUserProgress();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+      navigate('/auth');
+    } catch (error) {
+      toast.error('Failed to logout');
+    }
+  };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Unable to load profile data</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const progressPercentage = (userData.ecoPoints / userData.maxPoints) * 100;
+  const avatarInitials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (
     <MainLayout>
@@ -31,7 +69,7 @@ const Profile = () => {
             <div className="flex flex-col items-center space-y-4">
               <Avatar className="w-32 h-32 border-4 border-primary shadow-eco-lg">
                 <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
-                  {user.avatarInitials}
+                  {avatarInitials}
                 </AvatarFallback>
               </Avatar>
               
@@ -42,7 +80,7 @@ const Profile = () => {
                     Name
                   </label>
                   <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                    <p className="text-foreground font-medium">{user.name}</p>
+                    <p className="text-foreground font-medium">{userData.name}</p>
                   </div>
                 </div>
 
@@ -52,19 +90,18 @@ const Profile = () => {
                     Email
                   </label>
                   <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                    <p className="text-foreground font-medium">{user.email}</p>
+                    <p className="text-foreground font-medium">{userData.email}</p>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <Phone size={16} />
-                    Phone
-                  </label>
-                  <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                    <p className="text-foreground font-medium">{user.phone}</p>
-                  </div>
-                </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
               </div>
             </div>
           </Card>
@@ -76,7 +113,7 @@ const Profile = () => {
               <h2 className="text-2xl font-bold text-foreground">Awards / Achievements</h2>
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {user.achievements.map((achievement) => (
+                {userData.achievements.length > 0 ? userData.achievements.map((achievement) => (
                   <div
                     key={achievement.id}
                     className={`
@@ -92,7 +129,11 @@ const Profile = () => {
                       </p>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="col-span-full text-center py-8 text-muted-foreground">
+                    Complete levels to earn achievements!
+                  </div>
+                )}
               </div>
             </Card>
 
@@ -101,12 +142,12 @@ const Profile = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-foreground">Progress</h3>
                 <Badge variant="default" className="text-base px-4 py-1.5">
-                  {user.ecoPoints} / {user.maxPoints} Points
+                  {userData.ecoPoints} / {userData.maxPoints} Points
                 </Badge>
               </div>
               <Progress value={progressPercentage} className="h-3" />
               <p className="text-sm text-muted-foreground text-center">
-                {user.maxPoints - user.ecoPoints} points until next milestone
+                {userData.maxPoints - userData.ecoPoints} points until next milestone
               </p>
             </Card>
 
@@ -116,7 +157,9 @@ const Profile = () => {
               
               <div className="space-y-4">
                 {topics.map((topic) => {
-                  const completedLevels = topic.levels.filter(l => l.status === "completed").length;
+                  const completedLevels = topic.levels.filter(l => 
+                    userData.levelProgress[l.id] === "completed"
+                  ).length;
                   const totalLevels = topic.levels.length;
                   const isTopicCompleted = completedLevels === totalLevels;
                   
