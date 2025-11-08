@@ -1,46 +1,62 @@
 import { MainLayout } from "@/components/MainLayout";
 import { Card } from "@/components/ui/card";
-import { NodeCircle } from "@/components/NodeCircle";
-import { Badge } from "@/components/ui/badge";
+import { LevelPath } from "@/components/LevelPath";
+import { LevelNode } from "@/components/LevelNode";
+import { coreLevels, bonusLevels } from "@/config/levelsConfig";
+import { Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Levels = () => {
-  // Mock data - will be replaced with real data later
-  const levels = [
-    { id: 1, status: "completed" as const, topic: "Climate Basics" },
-    { id: 2, status: "completed" as const, topic: "Carbon Footprint" },
-    { id: 3, status: "active" as const, topic: "Renewable Energy" },
-    { id: 4, status: "locked" as const, topic: "Ocean Conservation" },
-    { id: 5, status: "locked" as const, topic: "Sustainable Living" },
-    { id: 6, status: "locked" as const, topic: "Biodiversity" },
-  ];
+  const navigate = useNavigate();
+
+  const handleBonusLevelClick = (bonusId: number) => {
+    navigate(`/levels/bonus/${bonusId}`);
+  };
 
   return (
     <MainLayout>
-      <div className="space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">Your Learning Path</h1>
+      <div className="space-y-12">
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+            ClimaQuest – Levels
+          </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Progress through levels to master climate action and sustainability
+            Choose a level to learn about climate topics. Complete challenges to unlock new content and earn eco-points!
           </p>
         </div>
 
-        <Card className="p-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 place-items-center">
-            {levels.map((level) => (
-              <div key={level.id} className="flex flex-col items-center gap-3">
-                <NodeCircle
-                  number={level.id}
-                  status={level.status}
-                  size="lg"
-                  onClick={() => console.log(`Level ${level.id} clicked`)}
-                />
-                <Badge variant={level.status === "locked" ? "secondary" : "default"}>
-                  {level.topic}
-                </Badge>
-              </div>
-            ))}
-          </div>
+        {/* Main Level Path */}
+        <Card className="p-8 overflow-hidden">
+          <LevelPath levels={coreLevels} />
         </Card>
+
+        {/* Bonus Levels Section */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles className="w-6 h-6 text-orange" />
+            <h2 className="text-3xl font-bold text-foreground">Bonus Levels</h2>
+            <Sparkles className="w-6 h-6 text-orange" />
+          </div>
+          
+          <Card className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {bonusLevels.map((bonus) => (
+                <LevelNode
+                  key={bonus.id}
+                  id={bonus.id}
+                  title={bonus.title}
+                  status={bonus.status}
+                  isBonus
+                  onClick={() => handleBonusLevelClick(bonus.id)}
+                />
+              ))}
+            </div>
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Complete all core levels to unlock bonus challenges
+            </p>
+          </Card>
+        </div>
       </div>
     </MainLayout>
   );
