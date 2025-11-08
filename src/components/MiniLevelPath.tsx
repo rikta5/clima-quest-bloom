@@ -8,8 +8,13 @@ export const MiniLevelPath = () => {
 
   // Get first 5 levels from the config
   const levels = coreLevels.slice(0, 5);
-  const currentLevelIndex = 2; // Mock current level (Level 3)
-  const currentLevel = levels[currentLevelIndex];
+  
+  // Find the first unlocked level as the current level
+  const currentLevelIndex = levels.findIndex(level => level.status === "unlocked");
+  const currentLevel = currentLevelIndex >= 0 ? levels[currentLevelIndex] : levels[0];
+  
+  // Count completed levels
+  const completedCount = levels.filter(level => level.status === "completed").length;
   
   // Find the topic that contains the current level
   const currentTopic = topics.find(topic => 
@@ -17,9 +22,9 @@ export const MiniLevelPath = () => {
   );
 
   const getNodeStatus = (index: number) => {
-    if (index < currentLevelIndex) return "completed" as const;
-    if (index === currentLevelIndex) return "active" as const;
-    return "locked" as const;
+    return levels[index].status === "completed" ? "completed" as const :
+           levels[index].status === "unlocked" ? "active" as const :
+           "locked" as const;
   };
 
   return (
@@ -36,7 +41,7 @@ export const MiniLevelPath = () => {
           {currentLevel.title}
         </h3>
         <p className="text-sm text-muted-foreground">
-          Level {currentLevel.id} • {currentLevelIndex + 1} of {levels.length} completed
+          Level {currentLevel.id} • {completedCount} of {levels.length} completed
         </p>
       </div>
 
@@ -54,7 +59,7 @@ export const MiniLevelPath = () => {
         <div className="relative flex items-center justify-between px-4">
           {levels.map((level, index) => {
             const status = getNodeStatus(index);
-            const isActive = index === currentLevelIndex;
+            const isActive = levels[index].status === "unlocked";
             
             return (
               <div key={level.id} className="relative flex flex-col items-center gap-3 group">
