@@ -26,56 +26,108 @@ const TopicMap = () => {
   const horizontalSpacing = 250;
   const verticalSpacing = 200;
 
+  // Separate core and bonus levels
+  const coreLevels = useMemo(() => 
+    topic?.levels.filter(l => l.type === "core") || [], 
+    [topic]
+  );
+  
+  const bonusLevels = useMemo(() => 
+    topic?.levels.filter(l => l.type === "bonus") || [], 
+    [topic]
+  );
+
+  // Check if all core levels are completed to unlock bonus levels
+  const allCoreLevelsCompleted = useMemo(() => 
+    coreLevels.every(l => l.status === "completed"),
+    [coreLevels]
+  );
+
   // Create nodes from levels
   const nodes: Node[] = useMemo(() => {
     if (!topic) return [];
 
-    return topic.levels.map((level, index) => {
-      const row = Math.floor(index / 3);
-      const col = index % 3;
-      const isEvenRow = row % 2 === 0;
-      const xPosition = isEvenRow
-        ? col * horizontalSpacing
-        : (2 - col) * horizontalSpacing;
+    const allLevels = [...coreLevels, ...bonusLevels];
+
+    return allLevels.map((level, index) => {
+      const isBonus = level.type === "bonus";
+      const bonusIndex = isBonus ? bonusLevels.indexOf(level) : -1;
+      
+      // Calculate position
+      let xPosition: number;
+      let yPosition: number;
+      
+      if (isBonus) {
+        // Bonus levels in a row at the bottom
+        const totalBonusWidth = (bonusLevels.length - 1) * horizontalSpacing;
+        const startX = -totalBonusWidth / 2;
+        xPosition = startX + bonusIndex * horizontalSpacing;
+        yPosition = (Math.ceil(coreLevels.length / 3) + 1) * verticalSpacing;
+      } else {
+        // Core levels in zigzag pattern
+        const row = Math.floor(index / 3);
+        const col = index % 3;
+        const isEvenRow = row % 2 === 0;
+        xPosition = isEvenRow
+          ? col * horizontalSpacing
+          : (2 - col) * horizontalSpacing;
+        yPosition = row * verticalSpacing;
+      }
+
+      // Determine status for bonus levels
+      const effectiveStatus = isBonus && !allCoreLevelsCompleted 
+        ? "locked" 
+        : level.status;
 
       let nodeColor = "#e5e7eb"; // locked (muted)
       let textColor = "#6b7280";
       let borderColor = "#d1d5db";
 
-      if (level.status === "completed") {
+      if (effectiveStatus === "completed") {
         nodeColor = "hsl(var(--accent))";
         textColor = "hsl(var(--accent-foreground))";
         borderColor = "hsl(var(--accent))";
-      } else if (level.status === "unlocked") {
-        nodeColor = "hsl(var(--secondary))";
-        textColor = "hsl(var(--secondary-foreground))";
-        borderColor = "hsl(var(--secondary))";
+      } else if (effectiveStatus === "unlocked") {
+        nodeColor = isBonus 
+          ? "hsl(var(--orange) / 0.2)"
+          : "hsl(var(--secondary))";
+        textColor = isBonus
+          ? "hsl(var(--orange))"
+          : "hsl(var(--secondary-foreground))";
+        borderColor = isBonus 
+          ? "hsl(var(--orange))"
+          : "hsl(var(--secondary))";
       }
 
       return {
         id: `level-${level.id}`,
         type: "default",
-        position: { x: xPosition, y: row * verticalSpacing },
+        position: { x: xPosition, y: yPosition },
         data: {
           label: (
             <div
               className="flex flex-col items-center justify-center p-4 cursor-pointer"
               onClick={() => {
-                if (level.status !== "locked") {
+                if (effectiveStatus !== "locked") {
                   navigate(`/levels/${level.id}`);
                 }
               }}
             >
               <div className="text-center space-y-2">
-                {level.status === "locked" && (
+                {isBonus && (
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange text-white rounded-full flex items-center justify-center text-xs font-bold">
+                    ⭐
+                  </div>
+                )}
+                {effectiveStatus === "locked" && (
                   <Lock className="w-8 h-8 mx-auto" />
                 )}
-                {level.status === "unlocked" && (
-                  <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl mx-auto">
+                {effectiveStatus === "unlocked" && (
+                  <div className={`w-12 h-12 rounded-full ${isBonus ? 'bg-orange text-white' : 'bg-primary text-primary-foreground'} flex items-center justify-center font-bold text-xl mx-auto`}>
                     {level.id}
                   </div>
                 )}
-                {level.status === "completed" && (
+                {effectiveStatus === "completed" && (
                   <CheckCircle2 className="w-10 h-10 mx-auto fill-current" />
                 )}
                 <p className="font-semibold text-sm line-clamp-2">
@@ -95,34 +147,63 @@ const TopicMap = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          cursor: level.status !== "locked" ? "pointer" : "not-allowed",
+          cursor: effectiveStatus !== "locked" ? "pointer" : "not-allowed",
           boxShadow:
-            level.status !== "locked"
-              ? "0 4px 14px rgba(31, 166, 74, 0.15)"
+            effectiveStatus !== "locked"
+              ? isBonus
+                ? "0 4px 14px rgba(255, 149, 0, 0.25)"
+                : "0 4px 14px rgba(31, 166, 74, 0.15)"
               : "none",
         },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
       };
     });
-  }, [topic, navigate]);
+  }, [topic, navigate, coreLevels, bonusLevels, allCoreLevelsCompleted]);
 
   // Create edges connecting the nodes
   const edges: Edge[] = useMemo(() => {
     if (!topic) return [];
 
-    return topic.levels.slice(0, -1).map((_, index) => ({
-      id: `edge-${index}`,
-      source: `level-${topic.levels[index].id}`,
-      target: `level-${topic.levels[index + 1].id}`,
-      animated: topic.levels[index].status === "completed",
-      style: {
-        stroke: "hsl(var(--border))",
-        strokeWidth: 3,
-        strokeDasharray: "8,4",
-      },
-    }));
-  }, [topic]);
+    const edges: Edge[] = [];
+
+    // Connect core levels
+    coreLevels.slice(0, -1).forEach((level, index) => {
+      edges.push({
+        id: `edge-core-${index}`,
+        source: `level-${coreLevels[index].id}`,
+        target: `level-${coreLevels[index + 1].id}`,
+        animated: coreLevels[index].status === "completed",
+        style: {
+          stroke: "hsl(var(--border))",
+          strokeWidth: 3,
+          strokeDasharray: "8,4",
+        },
+      });
+    });
+
+    // Connect last core level to bonus levels
+    if (coreLevels.length > 0 && bonusLevels.length > 0) {
+      const lastCoreLevel = coreLevels[coreLevels.length - 1];
+      bonusLevels.forEach((bonusLevel) => {
+        edges.push({
+          id: `edge-bonus-${bonusLevel.id}`,
+          source: `level-${lastCoreLevel.id}`,
+          target: `level-${bonusLevel.id}`,
+          animated: allCoreLevelsCompleted,
+          style: {
+            stroke: allCoreLevelsCompleted 
+              ? "hsl(var(--orange))" 
+              : "hsl(var(--border))",
+            strokeWidth: 3,
+            strokeDasharray: "8,4",
+          },
+        });
+      });
+    }
+
+    return edges;
+  }, [topic, coreLevels, bonusLevels, allCoreLevelsCompleted]);
 
   if (!topic) {
     return (
@@ -135,7 +216,7 @@ const TopicMap = () => {
     );
   }
 
-  const completedCount = topic.levels.filter(
+  const completedCount = coreLevels.filter(
     (l) => l.status === "completed"
   ).length;
 
@@ -155,9 +236,14 @@ const TopicMap = () => {
 
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="text-sm px-4 py-2">
-              {completedCount} / {topic.levels.length} Complete
+              {completedCount} / {coreLevels.length} Core Complete
             </Badge>
             <Badge className="text-sm px-4 py-2">{topic.complexity}</Badge>
+            {allCoreLevelsCompleted && (
+              <Badge className="text-sm px-4 py-2 bg-orange text-white">
+                Bonus Unlocked!
+              </Badge>
+            )}
           </div>
         </div>
 

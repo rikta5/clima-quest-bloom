@@ -16,6 +16,7 @@ export interface Level {
   description?: string;
   content?: string;
   quiz?: QuizQuestion;
+  topicId?: string;
 }
 
 export interface Topic {
@@ -96,6 +97,62 @@ export const topics: Topic[] = [
           correctAnswer: 2,
           explanation: "The average person in developed countries produces approximately 16 tons of CO2 per year."
         }
+      },
+      {
+        id: 4,
+        title: "Water Conservation",
+        status: "locked",
+        type: "core",
+        description: "Learn to preserve our water resources",
+        topicId: "climate-fundamentals"
+      },
+      {
+        id: 5,
+        title: "Air Quality",
+        status: "locked",
+        type: "core",
+        description: "Understanding pollution and clean air",
+        topicId: "climate-fundamentals"
+      },
+      {
+        id: 6,
+        title: "Waste Reduction",
+        status: "locked",
+        type: "core",
+        description: "Minimize waste in daily life",
+        topicId: "climate-fundamentals"
+      },
+      {
+        id: 7,
+        title: "Climate Action Plan",
+        status: "locked",
+        type: "core",
+        description: "Create your personal action plan",
+        topicId: "climate-fundamentals"
+      },
+      {
+        id: 101,
+        title: "Climate Champion",
+        status: "locked",
+        type: "bonus",
+        description: "Advanced climate leadership challenge",
+        topicId: "climate-fundamentals"
+      },
+      {
+        id: 102,
+        title: "Eco Innovator",
+        status: "locked",
+        type: "bonus",
+        description: "Design innovative climate solutions",
+        topicId: "climate-fundamentals"
+      },
+      {
+        id: 103,
+        title: "Green Ambassador",
+        status: "locked",
+        type: "bonus",
+        description: "Lead community climate initiatives",
+        topicId: "climate-fundamentals"
       }
     ]
   },
@@ -107,7 +164,7 @@ export const topics: Topic[] = [
     image: sustainableSolutionsImg,
     levels: [
       {
-        id: 4,
+        id: 8,
         title: "Renewable Energy",
         status: "locked",
         type: "core",
@@ -126,7 +183,7 @@ export const topics: Topic[] = [
         }
       },
       {
-        id: 5,
+        id: 9,
         title: "Sustainable Living",
         status: "locked",
         type: "core",
@@ -143,6 +200,70 @@ export const topics: Topic[] = [
           correctAnswer: 2,
           explanation: "While all these actions help, reducing meat consumption has one of the largest impacts on personal carbon footprint, as animal agriculture produces significant greenhouse gas emissions."
         }
+      },
+      {
+        id: 10,
+        title: "Green Technology",
+        status: "locked",
+        type: "core",
+        description: "Explore sustainable innovations",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 11,
+        title: "Circular Economy",
+        status: "locked",
+        type: "core",
+        description: "Learn about resource循环利用",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 12,
+        title: "Smart Cities",
+        status: "locked",
+        type: "core",
+        description: "Future of sustainable urban living",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 13,
+        title: "Green Building",
+        status: "locked",
+        type: "core",
+        description: "Sustainable architecture principles",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 14,
+        title: "Clean Transport",
+        status: "locked",
+        type: "core",
+        description: "Sustainable mobility solutions",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 201,
+        title: "Innovation Leader",
+        status: "locked",
+        type: "bonus",
+        description: "Pioneer next-gen sustainable tech",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 202,
+        title: "Sustainability Expert",
+        status: "locked",
+        type: "bonus",
+        description: "Master sustainable practices",
+        topicId: "sustainable-solutions"
+      },
+      {
+        id: 203,
+        title: "Green Visionary",
+        status: "locked",
+        type: "bonus",
+        description: "Shape the sustainable future",
+        topicId: "sustainable-solutions"
       }
     ]
   },
@@ -154,7 +275,7 @@ export const topics: Topic[] = [
     image: ecosystemProtectionImg,
     levels: [
       {
-        id: 6,
+        id: 15,
         title: "Ocean Conservation",
         status: "locked",
         type: "core",
@@ -173,7 +294,7 @@ export const topics: Topic[] = [
         }
       },
       {
-        id: 7,
+        id: 16,
         title: "Biodiversity",
         status: "locked",
         type: "core",
@@ -192,7 +313,7 @@ export const topics: Topic[] = [
         }
       },
       {
-        id: 8,
+        id: 17,
         title: "Climate Action",
         status: "locked",
         type: "core",
@@ -209,6 +330,62 @@ export const topics: Topic[] = [
           correctAnswer: 1,
           explanation: "The Paris Agreement aims to limit global warming to well below 2°C above pre-industrial levels, with efforts to limit it to 1.5°C."
         }
+      },
+      {
+        id: 18,
+        title: "Forest Protection",
+        status: "locked",
+        type: "core",
+        description: "Save our vital forests",
+        topicId: "ecosystem-protection"
+      },
+      {
+        id: 19,
+        title: "Wildlife Conservation",
+        status: "locked",
+        type: "core",
+        description: "Protect endangered species",
+        topicId: "ecosystem-protection"
+      },
+      {
+        id: 20,
+        title: "Habitat Restoration",
+        status: "locked",
+        type: "core",
+        description: "Rebuild natural ecosystems",
+        topicId: "ecosystem-protection"
+      },
+      {
+        id: 21,
+        title: "Ecosystem Balance",
+        status: "locked",
+        type: "core",
+        description: "Maintain nature's equilibrium",
+        topicId: "ecosystem-protection"
+      },
+      {
+        id: 301,
+        title: "Conservation Hero",
+        status: "locked",
+        type: "bonus",
+        description: "Lead major conservation efforts",
+        topicId: "ecosystem-protection"
+      },
+      {
+        id: 302,
+        title: "Ecosystem Guardian",
+        status: "locked",
+        type: "bonus",
+        description: "Master ecosystem management",
+        topicId: "ecosystem-protection"
+      },
+      {
+        id: 303,
+        title: "Planet Protector",
+        status: "locked",
+        type: "bonus",
+        description: "Ultimate ecosystem mastery",
+        topicId: "ecosystem-protection"
       }
     ]
   }
@@ -222,26 +399,10 @@ export const findLevelById = (levelId: number): Level | undefined => {
   return coreLevels.find(level => level.id === levelId);
 };
 
-export const bonusLevels: Level[] = [
-  {
-    id: 1,
-    title: "Eco Champion",
-    status: "locked",
-    type: "bonus",
-    description: "Advanced climate leadership"
-  },
-  {
-    id: 2,
-    title: "Green Innovation",
-    status: "locked",
-    type: "bonus",
-    description: "Future technology solutions"
-  },
-  {
-    id: 3,
-    title: "Climate Hero",
-    status: "locked",
-    type: "bonus",
-    description: "Master all climate topics"
-  }
-];
+// Helper to get next level in sequence
+export const getNextLevel = (currentLevelId: number): Level | undefined => {
+  const allLevels = coreLevels;
+  const currentIndex = allLevels.findIndex(level => level.id === currentLevelId);
+  if (currentIndex === -1 || currentIndex === allLevels.length - 1) return undefined;
+  return allLevels[currentIndex + 1];
+};

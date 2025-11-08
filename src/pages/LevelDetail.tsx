@@ -2,11 +2,12 @@ import { MainLayout } from "@/components/MainLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useParams, useNavigate } from "react-router-dom";
-import { findLevelById } from "@/config/levelsConfig";
-import { ArrowLeft, CheckCircle2, XCircle, Sparkles } from "lucide-react";
+import { findLevelById, getNextLevel } from "@/config/levelsConfig";
+import { ArrowLeft, CheckCircle2, XCircle, Sparkles, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { EcoPointsBadge } from "@/components/EcoPointsBadge";
+import { LevelTransition } from "@/components/LevelTransition";
 
 const LevelDetail = () => {
   const { id } = useParams();
@@ -14,10 +15,12 @@ const LevelDetail = () => {
   const levelId = parseInt(id || "1");
   
   const level = findLevelById(levelId);
+  const nextLevel = level ? getNextLevel(levelId) : undefined;
   
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [localEcoPoints, setLocalEcoPoints] = useState(0);
+  const [showTransition, setShowTransition] = useState(false);
 
   if (!level) {
     return (
@@ -36,12 +39,11 @@ const LevelDetail = () => {
   const isCorrect = selectedAnswer === level.quiz?.correctAnswer;
 
   const handleAnswerClick = (answerIndex: number) => {
-    if (showFeedback) return; // Prevent changing answer after selection
+    if (showFeedback) return;
     
     setSelectedAnswer(answerIndex);
     setShowFeedback(true);
     
-    // Award points if correct
     if (answerIndex === level.quiz?.correctAnswer) {
       setLocalEcoPoints(prev => prev + 10);
     }
@@ -50,6 +52,18 @@ const LevelDetail = () => {
   const resetQuiz = () => {
     setSelectedAnswer(null);
     setShowFeedback(false);
+  };
+
+  const handleNextLevel = () => {
+    if (nextLevel) {
+      setShowTransition(true);
+    }
+  };
+
+  const handleTransitionComplete = () => {
+    if (nextLevel) {
+      navigate(`/levels/${nextLevel.id}`);
+    }
   };
 
   const getAnswerButtonStyle = (answerIndex: number) => {
@@ -70,6 +84,8 @@ const LevelDetail = () => {
 
   return (
     <MainLayout>
+      {showTransition && <LevelTransition onComplete={handleTransitionComplete} />}
+      
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
@@ -208,6 +224,20 @@ const LevelDetail = () => {
                         )}
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* Next Level Button */}
+                {showFeedback && isCorrect && nextLevel && (
+                  <div className="pt-4">
+                    <Button 
+                      onClick={handleNextLevel}
+                      size="lg"
+                      className="w-full gap-2"
+                    >
+                      Next Level: {nextLevel.title}
+                      <ArrowRight size={20} />
+                    </Button>
                   </div>
                 )}
               </Card>

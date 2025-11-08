@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import Levels from "./pages/Levels";
 import TopicMap from "./pages/TopicMap";
 import LevelDetail from "./pages/LevelDetail";
-import BonusLevelDetail from "./pages/BonusLevelDetail";
 import Profile from "./pages/Profile";
 import Reels from "./pages/Reels";
 import Workflows from "./pages/Workflows";
@@ -26,7 +25,6 @@ const App = () => (
           <Route path="/levels" element={<Levels />} />
           <Route path="/levels/topic/:topicId" element={<TopicMap />} />
           <Route path="/levels/:id" element={<LevelDetail />} />
-          <Route path="/levels/bonus/:id" element={<BonusLevelDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/reels" element={<Reels />} />
           <Route path="/workflows" element={<Workflows />} />

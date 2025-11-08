@@ -1,18 +1,9 @@
 import { MainLayout } from "@/components/MainLayout";
 import { Card } from "@/components/ui/card";
 import { TopicCarousel } from "@/components/TopicCarousel";
-import { LevelNode } from "@/components/LevelNode";
-import { topics, bonusLevels } from "@/config/levelsConfig";
-import { Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { topics } from "@/config/levelsConfig";
 
 const Levels = () => {
-  const navigate = useNavigate();
-
-  const handleBonusLevelClick = (bonusId: number) => {
-    navigate(`/levels/bonus/${bonusId}`);
-  };
-
   return (
     <MainLayout>
       <div className="space-y-12">
@@ -28,33 +19,6 @@ const Levels = () => {
 
         {/* Topic Carousel */}
         <TopicCarousel topics={topics} />
-
-        {/* Bonus Levels Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-center gap-2">
-            <Sparkles className="w-6 h-6 text-orange" />
-            <h2 className="text-3xl font-bold text-foreground">Bonus Levels</h2>
-            <Sparkles className="w-6 h-6 text-orange" />
-          </div>
-          
-          <Card className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {bonusLevels.map((bonus) => (
-                <LevelNode
-                  key={bonus.id}
-                  id={bonus.id}
-                  title={bonus.title}
-                  status={bonus.status}
-                  isBonus
-                  onClick={() => handleBonusLevelClick(bonus.id)}
-                />
-              ))}
-            </div>
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              Complete all core levels to unlock bonus challenges
-            </p>
-          </Card>
-        </div>
       </div>
     </MainLayout>
   );
