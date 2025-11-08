@@ -9,6 +9,12 @@ export const useLevelProgress = () => {
       // Default: first level unlocked, rest locked
       return levelId === 1 ? "unlocked" : "locked";
     }
+    
+    // Always unlock level 1 if no progress exists for it
+    if (levelId === 1 && !userData.levelProgress[levelId]) {
+      return "unlocked";
+    }
+    
     const status = userData.levelProgress[levelId];
     return (status as LevelStatus) || "locked";
   };

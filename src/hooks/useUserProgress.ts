@@ -12,6 +12,8 @@ export interface UserData {
   maxPoints: number;
   achievements: Achievement[];
   levelProgress: Record<string, string>; // levelId -> status
+  streak?: number;
+  lastLoginDate?: string;
 }
 
 export const useUserProgress = () => {
@@ -30,7 +32,42 @@ export const useUserProgress = () => {
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUserData(userDoc.data() as UserData);
+          const data = userDoc.data() as UserData;
+          
+          // Update streak on login
+          const today = new Date().toISOString().split('T')[0];
+          const lastLogin = data.lastLoginDate;
+          
+          let newStreak = data.streak || 0;
+          
+          if (!lastLogin) {
+            newStreak = 1;
+          } else {
+            const lastLoginDate = new Date(lastLogin);
+            const todayDate = new Date(today);
+            const diffTime = todayDate.getTime() - lastLoginDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+              newStreak = (data.streak || 0) + 1;
+            } else if (diffDays === 0) {
+              newStreak = data.streak || 1;
+            } else {
+              newStreak = 1;
+            }
+          }
+          
+          // Update streak and last login date if needed
+          if (lastLogin !== today) {
+            await updateDoc(doc(db, 'users', user.uid), {
+              streak: newStreak,
+              lastLoginDate: today
+            });
+            data.streak = newStreak;
+            data.lastLoginDate = today;
+          }
+          
+          setUserData(data);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);

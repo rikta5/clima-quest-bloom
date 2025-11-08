@@ -43,7 +43,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = async (email: string, password: string, name: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
-    // Create user profile in Firestore with first level unlocked
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Create user profile in Firestore with first level unlocked and streak initialized
     await setDoc(doc(db, 'users', userCredential.user.uid), {
       name,
       email,
@@ -53,7 +55,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       achievements: [],
       levelProgress: {
         1: "unlocked" // First level is unlocked by default
-      }
+      },
+      streak: 1,
+      lastLoginDate: today
     });
   };
 

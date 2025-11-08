@@ -34,7 +34,7 @@ const Index = () => {
   }
 
   const avatarInitials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  const streak = 5; // TODO: Calculate actual streak from login history
+  const streak = userData.streak || 0;
 
   return (
     <MainLayout>
