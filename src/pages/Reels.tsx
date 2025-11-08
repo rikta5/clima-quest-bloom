@@ -67,7 +67,7 @@ const Reels = () => {
         <div className="max-w-md mx-auto">
           <Card 
             className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all"
-            onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", sampleReels[0].title)}
+            onClick={() => handleReelClick("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", sampleReels[0].title)}
           >
             <div className="relative aspect-[9/16] bg-black">
               <img 
@@ -142,7 +142,12 @@ const Reels = () => {
               <Card 
                 key={reel.id} 
                 className="overflow-hidden group cursor-pointer hover:shadow-eco-lg transition-all"
-                onClick={() => handleReelClick("https://www.w3schools.com/html/mov_bbb.mp4", reel.title)}
+                onClick={() => handleReelClick(
+                  reel.id === 2 
+                    ? "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+                    : "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+                  reel.title
+                )}
               >
                 <div className="relative aspect-[9/16] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
                   {reel.thumbnail && (
