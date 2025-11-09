@@ -1,24 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Leaf, Target, TrendingUp, Users, Award, Zap, ArrowRight, Sparkles, Play, BookOpen, Trophy, BarChart3 } from "lucide-react";
 import birdLogo from "@/assets/bird-logo.png";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     setIsVisible(true);
-    
-    // Redirect authenticated users to home
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+  }, []);
 
   const features = [
     {
