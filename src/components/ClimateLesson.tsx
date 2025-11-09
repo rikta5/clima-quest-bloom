@@ -9,6 +9,7 @@ import { db } from '../lib/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { useTopicProgress } from '@/hooks/useTopicProgress';
+import confetti from 'canvas-confetti';
 
 interface Quiz {
   question: string;
@@ -367,6 +368,47 @@ Return ONLY valid JSON, nothing else.`;
         const medalText = medal ? `${medal.charAt(0).toUpperCase() + medal.slice(1)} Medal! 🏆` : 'Completed!';
         const pointsText = isCorrect ? '+2 Eco Points' : '+1 Eco Point';
         toast.success(`Level completed! ${correctCount}/5 correct - ${medalText} ${pointsText}`);
+        
+        // Check if this is the last level of e-waste (level 10) - trigger unlock celebration
+        if (topicId === 'e-waste' && parseInt(levelNum) === 10) {
+          // Trigger confetti celebration
+          const duration = 3000;
+          const animationEnd = Date.now() + duration;
+          const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+          function randomInRange(min: number, max: number) {
+            return Math.random() * (max - min) + min;
+          }
+
+          const interval: any = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+              return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            
+            confetti({
+              ...defaults,
+              particleCount,
+              origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+            });
+            confetti({
+              ...defaults,
+              particleCount,
+              origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            });
+          }, 250);
+
+          // Show special unlock toast
+          setTimeout(() => {
+            toast.success('🎉 Temperature Change Topic Unlocked!', {
+              description: 'You completed E-Waste Recycling! New learning awaits.',
+              duration: 5000,
+            });
+          }, 1000);
+        }
         
         // Navigate back after showing medal
         setTimeout(() => navigate(`/topic/${topicId}`), 3000);
