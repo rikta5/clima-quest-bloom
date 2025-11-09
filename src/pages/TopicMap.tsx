@@ -98,24 +98,29 @@ const TopicMap = () => {
         ? "locked" 
         : level.status;
 
-      let nodeColor = "#e5e7eb"; // locked (muted)
-      let textColor = "#6b7280";
-      let borderColor = "#d1d5db";
+      let nodeColor = "hsl(var(--muted))";
+      let textColor = "hsl(var(--muted-foreground))";
+      let borderColor = "hsl(var(--border))";
+      let shadowStyle = "none";
 
       if (effectiveStatus === "completed") {
-        nodeColor = "hsl(var(--accent))";
+        nodeColor = "linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent) / 0.8) 100%)";
         textColor = "hsl(var(--accent-foreground))";
         borderColor = "hsl(var(--accent))";
+        shadowStyle = "0 8px 24px hsl(var(--accent) / 0.4)";
       } else if (effectiveStatus === "unlocked") {
         nodeColor = isBonus 
-          ? "hsl(var(--orange) / 0.2)"
-          : "hsl(var(--secondary))";
+          ? "linear-gradient(135deg, hsl(var(--orange)) 0%, hsl(var(--orange) / 0.7) 100%)"
+          : "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)";
         textColor = isBonus
-          ? "hsl(var(--orange))"
-          : "hsl(var(--secondary-foreground))";
+          ? "white"
+          : "hsl(var(--primary-foreground))";
         borderColor = isBonus 
           ? "hsl(var(--orange))"
-          : "hsl(var(--secondary))";
+          : "hsl(var(--primary))";
+        shadowStyle = isBonus
+          ? "0 8px 24px hsl(var(--orange) / 0.4)"
+          : "0 8px 24px hsl(var(--primary) / 0.3)";
       }
 
       return {
@@ -134,22 +139,22 @@ const TopicMap = () => {
             >
               <div className="text-center space-y-2">
                 {isBonus && (
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  <div className="absolute -top-3 -right-3 w-10 h-10 bg-gradient-to-br from-orange to-orange/80 text-white rounded-full flex items-center justify-center text-lg font-bold shadow-eco-lg animate-pulse">
                     ⭐
                   </div>
                 )}
                 {effectiveStatus === "locked" && (
-                  <Lock className="w-8 h-8 mx-auto" />
+                  <Lock className="w-10 h-10 mx-auto opacity-50" />
                 )}
                 {effectiveStatus === "unlocked" && (
-                  <div className={`w-12 h-12 rounded-full ${isBonus ? 'bg-orange text-white' : 'bg-primary text-primary-foreground'} flex items-center justify-center font-bold text-xl mx-auto`}>
+                  <div className={`w-14 h-14 rounded-full ${isBonus ? 'bg-white/20 text-white backdrop-blur' : 'bg-white/20 text-white backdrop-blur'} flex items-center justify-center font-bold text-2xl mx-auto shadow-lg border-2 border-white/30`}>
                     {level.id}
                   </div>
                 )}
                 {effectiveStatus === "completed" && (
-                  <CheckCircle2 className="w-10 h-10 mx-auto fill-current" />
+                  <CheckCircle2 className="w-12 h-12 mx-auto fill-current drop-shadow-lg" />
                 )}
-                <p className="font-semibold text-sm line-clamp-2">
+                <p className="font-bold text-base line-clamp-2 mt-2 drop-shadow">
                   {level.title}
                 </p>
               </div>
@@ -159,20 +164,16 @@ const TopicMap = () => {
         style: {
           background: nodeColor,
           color: textColor,
-          border: `3px solid ${borderColor}`,
-          borderRadius: "16px",
+          border: `4px solid ${borderColor}`,
+          borderRadius: "20px",
           width: nodeWidth,
           height: nodeHeight,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: effectiveStatus !== "locked" ? "pointer" : "not-allowed",
-          boxShadow:
-            effectiveStatus !== "locked"
-              ? isBonus
-                ? "0 4px 14px rgba(255, 149, 0, 0.25)"
-                : "0 4px 14px rgba(31, 166, 74, 0.15)"
-              : "none",
+          boxShadow: shadowStyle,
+          transition: "all 0.3s ease",
         },
         sourcePosition: Position.Right,
         targetPosition: Position.Left,
@@ -243,49 +244,52 @@ const TopicMap = () => {
     <MainLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between animate-fade-in">
           <Button
             variant="outline"
             onClick={() => navigate("/levels")}
-            className="gap-2"
+            className="gap-2 hover:scale-105 transition-transform"
           >
             <ArrowLeft size={16} />
             Back to Topics
           </Button>
 
           <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-sm px-4 py-2">
+            <Badge variant="outline" className="text-base px-5 py-2 border-2">
               {completedCount} / {coreLevels.length} Core Complete
             </Badge>
-            <Badge className="text-sm px-4 py-2">{topic.complexity}</Badge>
+            <Badge className="text-base px-5 py-2 bg-primary/90">{topic.complexity}</Badge>
             {allCoreLevelsCompleted && (
-              <Badge className="text-sm px-4 py-2 bg-orange text-white">
-                Bonus Unlocked!
+              <Badge className="text-base px-5 py-2 bg-orange text-white animate-pulse shadow-eco-lg">
+                ⭐ Bonus Unlocked!
               </Badge>
             )}
           </div>
         </div>
 
         {/* Topic Info */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-            {topic.name}
-          </h1>
-          <p className="text-lg text-muted-foreground">{topic.description}</p>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-accent/10 to-transparent border border-primary/20 p-10 animate-fade-in">
+          <div className="absolute inset-0 bg-grid-white/5" />
+          <div className="relative text-center space-y-4">
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              {topic.name}
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">{topic.description}</p>
+          </div>
         </div>
 
         {/* React Flow Node Map */}
-        <div className="h-[600px] bg-card border border-border rounded-xl overflow-hidden shadow-eco-lg">
+        <div className="h-[700px] bg-gradient-to-br from-card via-card to-primary/5 border-2 border-primary/10 rounded-2xl overflow-hidden shadow-eco-lg animate-fade-in">
           <ReactFlow
             nodes={nodes}
             edges={edges}
             fitView
             attributionPosition="bottom-right"
-            minZoom={0.5}
+            minZoom={0.4}
             maxZoom={1.5}
           >
-            <Background />
-            <Controls />
+            <Background gap={16} size={1} color="hsl(var(--primary) / 0.1)" />
+            <Controls className="bg-card/90 backdrop-blur border border-primary/20" />
           </ReactFlow>
         </div>
       </div>

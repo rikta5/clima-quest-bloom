@@ -43,9 +43,9 @@ export const TopicCarousel = ({ topics }: TopicCarouselProps) => {
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-80px)]">
+    <div className="relative w-full h-[calc(100vh-80px)] animate-fade-in">
       {/* Main Full-Width Slide */}
-      <Card className="w-full h-full shadow-2xl border-none rounded-none overflow-hidden border-red-500 border-4">
+      <Card className="w-full h-full shadow-2xl border-none rounded-xl overflow-hidden">
         <div className="grid md:grid-cols-2 gap-0 h-full">
           {/* Image Section */}
           <div className="relative h-full">
