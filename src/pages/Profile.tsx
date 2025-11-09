@@ -55,9 +55,24 @@ const Profile = () => {
 
   // Calculate max possible points based on actual topics
   const POINTS_PER_LEVEL = 10;
-  const maxPossiblePoints = topics.reduce((total, topic) => {
-    return total + (topic.levels?.length || 0) * POINTS_PER_LEVEL;
-  }, 0);
+  const LEVELS_PER_TOPIC = 10; // Each topic has 10 levels (7 core + 3 bonus)
+  
+  // Calculate from topics if available, otherwise use known topic IDs from progress
+  let maxPossiblePoints = 0;
+  
+  if (topics.length > 0) {
+    // Use actual topics from Firestore
+    maxPossiblePoints = topics.reduce((total, topic) => {
+      return total + (topic.levels?.length || LEVELS_PER_TOPIC) * POINTS_PER_LEVEL;
+    }, 0);
+  } else if (userData.topicProgress) {
+    // Fallback: calculate from topic progress data
+    const topicCount = Object.keys(userData.topicProgress).length;
+    maxPossiblePoints = topicCount * LEVELS_PER_TOPIC * POINTS_PER_LEVEL;
+  } else {
+    // Default fallback for known topics
+    maxPossiblePoints = 2 * LEVELS_PER_TOPIC * POINTS_PER_LEVEL; // 2 known topics
+  }
   
   const progressPercentage = maxPossiblePoints > 0 
     ? (userData.ecoPoints / maxPossiblePoints) * 100 
