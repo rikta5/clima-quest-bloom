@@ -41,10 +41,17 @@ const levelConfig = {
 };
 
 const difficultyColors = {
-  beginner: 'from-blue-400 to-cyan-400',
-  intermediate: 'from-yellow-400 to-orange-400',
-  advanced: 'from-red-400 to-pink-400',
-  expert: 'from-purple-500 to-indigo-600'
+  beginner: 'from-blue-500 to-cyan-500',
+  intermediate: 'from-yellow-500 to-orange-500',
+  advanced: 'from-red-500 to-pink-500',
+  expert: 'from-purple-600 to-indigo-700'
+};
+
+const difficultyShadows = {
+  beginner: 'shadow-[0_0_20px_rgba(59,130,246,0.5)]',
+  intermediate: 'shadow-[0_0_20px_rgba(249,115,22,0.5)]',
+  advanced: 'shadow-[0_0_20px_rgba(239,68,68,0.5)]',
+  expert: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]'
 };
 
 // Circular positions for 10 levels in a web-like pattern
@@ -73,12 +80,34 @@ export default function TopicLevels() {
   const navigate = useNavigate();
   const { getTopicLevelStatus, getLessonProgress, getCorrectAnswers, getMedalForLevel, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
   const [isVisible, setIsVisible] = useState(false);
+  const [pathProgress, setPathProgress] = useState(0);
   
   const config = topicId ? levelConfig[topicId as keyof typeof levelConfig] : null;
   const stats = topicId ? getTopicCompletionStats(topicId) : null;
 
+  // Find the current active level (first unlocked)
+  const currentLevelIndex = config?.levels.findIndex(level => 
+    topicId && getTopicLevelStatus(topicId, level.id) === 'unlocked'
+  ) ?? -1;
+
   useEffect(() => {
     setIsVisible(true);
+    
+    // Animate path tracing
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        setPathProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 2;
+        });
+      }, 20);
+      return () => clearInterval(interval);
+    }, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   if (!config) {
@@ -130,11 +159,15 @@ export default function TopicLevels() {
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.3 }} />
-                    <stop offset="100%" style={{ stopColor: 'hsl(var(--accent))', stopOpacity: 0.3 }} />
+                    <stop offset="0%" style={{ stopColor: 'hsl(145, 80%, 39%)', stopOpacity: 0.8 }} />
+                    <stop offset="100%" style={{ stopColor: 'hsl(152, 50%, 50%)', stopOpacity: 0.8 }} />
+                  </linearGradient>
+                  <linearGradient id="activeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: '#34d399', stopOpacity: 1 }} />
                   </linearGradient>
                   <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                     <feMerge>
                       <feMergeNode in="coloredBlur"/>
                       <feMergeNode in="SourceGraphic"/>
@@ -149,24 +182,41 @@ export default function TopicLevels() {
                   const pos2 = getNodePosition(index + 1, config.levels.length);
                   const status1 = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
                   const status2 = topicId ? getTopicLevelStatus(topicId, config.levels[index + 1].id) : 'locked';
-                  const isActive = status1 === 'completed' || status2 === 'unlocked' || status2 === 'completed';
+                  const isCompleted = status1 === 'completed';
+                  const isActive = index <= currentLevelIndex;
+                  const shouldAnimate = isActive && index <= currentLevelIndex;
                   
                   return (
-                    <line
-                      key={`line-${index}`}
-                      x1={`${pos1.x}%`}
-                      y1={`${pos1.y}%`}
-                      x2={`${pos2.x}%`}
-                      y2={`${pos2.y}%`}
-                      stroke={isActive ? "url(#lineGradient)" : "hsl(var(--muted))"}
-                      strokeWidth="3"
-                      strokeDasharray={isActive ? "0" : "5,5"}
-                      className={isActive ? "animate-pulse" : ""}
-                      style={{ 
-                        filter: isActive ? "url(#glow)" : "none",
-                        opacity: isActive ? 1 : 0.3
-                      }}
-                    />
+                    <g key={`line-${index}`}>
+                      {/* Base line */}
+                      <line
+                        x1={`${pos1.x}%`}
+                        y1={`${pos1.y}%`}
+                        x2={`${pos2.x}%`}
+                        y2={`${pos2.y}%`}
+                        stroke="hsl(var(--muted))"
+                        strokeWidth="4"
+                        strokeDasharray="5,5"
+                        opacity="0.3"
+                      />
+                      {/* Animated progress line */}
+                      {shouldAnimate && (
+                        <line
+                          x1={`${pos1.x}%`}
+                          y1={`${pos1.y}%`}
+                          x2={`${pos2.x}%`}
+                          y2={`${pos2.y}%`}
+                          stroke={isCompleted ? "url(#activeGradient)" : "url(#lineGradient)"}
+                          strokeWidth="5"
+                          strokeDasharray="1000"
+                          strokeDashoffset={1000 - (pathProgress * 10)}
+                          style={{ 
+                            filter: "url(#glow)",
+                            transition: 'stroke-dashoffset 0.5s ease-out'
+                          }}
+                        />
+                      )}
+                    </g>
                   );
                 })}
               </svg>
@@ -199,9 +249,51 @@ export default function TopicLevels() {
                       disabled={isLocked}
                       className="group relative"
                     >
+                      {/* Particle effects for unlocked nodes */}
+                      {status === 'unlocked' && (
+                        <>
+                          {[...Array(6)].map((_, i) => (
+                            <div
+                              key={`particle-${i}`}
+                              className="absolute w-2 h-2 rounded-full bg-yellow-400"
+                              style={{
+                                top: '50%',
+                                left: '50%',
+                                animation: `float-particle ${2 + i * 0.3}s ease-in-out infinite`,
+                                animationDelay: `${i * 0.2}s`,
+                                transform: `rotate(${i * 60}deg) translateX(40px)`
+                              }}
+                            />
+                          ))}
+                        </>
+                      )}
+                      
+                      {/* Orbiting icons for active nodes */}
+                      {status === 'unlocked' && (
+                        <>
+                          <div 
+                            className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full"
+                            style={{ animation: 'orbit 3s linear infinite' }}
+                          >
+                            <Sparkles className="w-4 h-4 text-yellow-400" />
+                          </div>
+                          <div 
+                            className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full"
+                            style={{ animation: 'orbit 3s linear infinite reverse' }}
+                          >
+                            <Trophy className="w-4 h-4 text-amber-500" />
+                          </div>
+                        </>
+                      )}
+                      
                       {/* Glow effect for active/completed */}
                       {!isLocked && (
-                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300`} />
+                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-300 ${difficultyShadows[level.difficulty]}`} />
+                      )}
+                      
+                      {/* Pulsing ring for unlocked */}
+                      {status === 'unlocked' && (
+                        <div className="absolute inset-0 rounded-full border-4 border-yellow-400 animate-ping opacity-75" />
                       )}
                       
                       {/* Main node circle */}
@@ -212,25 +304,25 @@ export default function TopicLevels() {
                           border-4 font-bold text-xl
                           transition-all duration-300
                           ${isLocked 
-                            ? 'bg-muted border-muted-foreground/20 cursor-not-allowed' 
-                            : `bg-gradient-to-br ${difficultyColors[level.difficulty]} border-white shadow-eco-lg cursor-pointer hover:scale-125 hover:rotate-12`
+                            ? 'bg-muted border-muted-foreground/30 cursor-not-allowed opacity-60' 
+                            : `bg-gradient-to-br ${difficultyColors[level.difficulty]} border-white ${difficultyShadows[level.difficulty]} cursor-pointer hover:scale-125 hover:rotate-12`
                           }
                         `}
                       >
                         {isLocked && <Lock className="w-6 h-6 text-muted-foreground" />}
-                        {!isLocked && !isCompleted && <span className="text-white">{level.id}</span>}
-                        {isCompleted && <CheckCircle2 className="w-8 h-8 text-white" />}
+                        {!isLocked && !isCompleted && <span className="text-white drop-shadow-lg">{level.id}</span>}
+                        {isCompleted && <CheckCircle2 className="w-8 h-8 text-white drop-shadow-lg" />}
                         
                         {/* Medal overlay */}
                         {medal && (
-                          <div className="absolute -top-2 -right-2 text-2xl animate-bounce">
+                          <div className="absolute -top-2 -right-2 text-2xl animate-bounce drop-shadow-lg">
                             {medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : '🥉'}
                           </div>
                         )}
                         
                         {/* Sparkles for unlocked */}
                         {status === 'unlocked' && (
-                          <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-yellow-400 animate-pulse" />
+                          <Sparkles className="absolute -top-1 -right-1 w-6 h-6 text-yellow-300 animate-pulse drop-shadow-lg" />
                         )}
                       </div>
 
