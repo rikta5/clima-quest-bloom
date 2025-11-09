@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/MainLayout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Lock } from 'lucide-react';
-import { LevelNode } from '@/components/LevelNode';
+import { ArrowLeft, Lock, CheckCircle2 } from 'lucide-react';
+import { useTopicProgress } from '@/hooks/useTopicProgress';
 
 const levelConfig = {
   'e-waste': {
@@ -49,8 +49,10 @@ const difficultyColors = {
 export default function TopicLevels() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
+  const { getTopicLevelStatus, getTopicCompletionStats } = useTopicProgress();
   
   const config = topicId ? levelConfig[topicId as keyof typeof levelConfig] : null;
+  const stats = topicId ? getTopicCompletionStats(topicId) : null;
 
   if (!config) {
     return (
@@ -80,42 +82,55 @@ export default function TopicLevels() {
               {config.title}
             </h1>
             <p className="text-muted-foreground">
-              Complete all 10 levels to master this topic
+              {stats ? `${stats.completed} of ${stats.total} levels completed (${Math.round(stats.percentage)}%)` : 'Complete all 10 levels to master this topic'}
             </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {config.levels.map((level) => (
-              <button
-                key={level.id}
-                onClick={() => navigate(`/climate-lesson/${topicId}/${level.id}`)}
-                disabled={level.locked}
-                className="group relative overflow-hidden rounded-xl border-2 border-border bg-card p-6 text-left transition-all hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${difficultyColors[level.difficulty]} opacity-10 group-hover:opacity-20 transition-opacity`} />
-                
-                <div className="relative space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} text-white font-bold text-lg shadow-lg`}>
-                      {level.locked ? <Lock className="w-5 h-5" /> : level.id}
-                    </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold bg-gradient-to-r ${difficultyColors[level.difficulty]} text-white`}>
-                      {level.difficulty}
-                    </span>
-                  </div>
+            {config.levels.map((level) => {
+              const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+              const isLocked = status === 'locked';
+              const isCompleted = status === 'completed';
+
+              return (
+                <button
+                  key={level.id}
+                  onClick={() => !isLocked && navigate(`/climate-lesson/${topicId}/${level.id}`)}
+                  disabled={isLocked}
+                  className="group relative overflow-hidden rounded-xl border-2 border-border bg-card p-6 text-left transition-all hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${difficultyColors[level.difficulty]} opacity-10 group-hover:opacity-20 transition-opacity`} />
                   
-                  <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                    {level.title}
-                  </h3>
+                  {isCompleted && (
+                    <div className="absolute top-2 right-2 z-10">
+                      <CheckCircle2 className="w-6 h-6 text-green-500 fill-green-500/20" />
+                    </div>
+                  )}
                   
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary w-0 group-hover:w-full transition-all duration-500" />
+                  <div className="relative space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} text-white font-bold text-lg shadow-lg`}>
+                        {isLocked ? <Lock className="w-5 h-5" /> : level.id}
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold bg-gradient-to-r ${difficultyColors[level.difficulty]} text-white`}>
+                        {level.difficulty}
+                      </span>
+                    </div>
+                    
+                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                      {level.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
+                        <div className={`h-full bg-primary transition-all duration-500 ${isCompleted ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                      </div>
+                      <span className="text-xs font-semibold">{isCompleted ? 'Done' : isLocked ? 'Locked' : 'Start'}</span>
                     </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-8 p-4 rounded-lg bg-muted/50 border">

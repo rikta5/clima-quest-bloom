@@ -11,7 +11,8 @@ export interface UserData {
   ecoPoints: number;
   maxPoints: number;
   achievements: Achievement[];
-  levelProgress: Record<string, string>; // levelId -> status
+  levelProgress: Record<string, string>; // levelId -> status (legacy)
+  topicProgress?: Record<string, Record<number, string>>; // topicId -> levelNum -> status
   streak?: number;
   lastLoginDate?: string;
 }

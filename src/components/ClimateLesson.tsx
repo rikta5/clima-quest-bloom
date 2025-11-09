@@ -8,6 +8,7 @@ import { MainLayout } from './MainLayout';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTopicProgress } from '@/hooks/useTopicProgress';
 
 interface Quiz {
   question: string;
@@ -36,6 +37,7 @@ interface TempChangeData {
 export default function ClimateLesson() {
   const { topicId, levelNum } = useParams<{ topicId: string; levelNum: string }>();
   const navigate = useNavigate();
+  const { completeTopicLevel } = useTopicProgress();
   const [paragraph, setParagraph] = useState('');
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
@@ -325,7 +327,13 @@ Return ONLY valid JSON, nothing else.`;
     setShowResult(true);
   };
 
-  const handleNextLesson = () => {
+  const handleNextLesson = async () => {
+    // If user answered correctly, mark level as complete
+    if (selectedAnswer === quiz?.correctIndex && topicId && levelNum) {
+      await completeTopicLevel(topicId, parseInt(levelNum), 10);
+      toast.success('Level completed! +10 Eco Points');
+    }
+
     setLoading(true);
     setSelectedAnswer(null);
     setShowResult(false);

@@ -56,17 +56,24 @@ const Profile = () => {
   const progressPercentage = (userData.ecoPoints / userData.maxPoints) * 100;
   const avatarInitials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   
-  const completedTopicsCount = topics.filter(topic => {
-    const totalLevels = topic.levels?.length || 0;
-    const completedLevels = topic.levels?.filter(l => 
-      userData.levelProgress[l.id] === "completed"
-    ).length || 0;
-    return totalLevels > 0 && completedLevels === totalLevels;
-  }).length;
+  // Calculate total completed levels from topicProgress
+  let totalCompletedLevels = 0;
+  let completedTopicsCount = 0;
 
-  const totalCompletedLevels = Object.values(userData.levelProgress).filter(
-    status => status === "completed"
-  ).length;
+  if (userData.topicProgress) {
+    const topicIds = Object.keys(userData.topicProgress);
+    
+    topicIds.forEach(topicId => {
+      const topicData = userData.topicProgress![topicId];
+      const completedInTopic = Object.values(topicData).filter(status => status === 'completed').length;
+      totalCompletedLevels += completedInTopic;
+      
+      // A topic is completed if all 10 levels are completed
+      if (completedInTopic === 10) {
+        completedTopicsCount++;
+      }
+    });
+  }
 
   return (
     <MainLayout>
@@ -273,13 +280,17 @@ const Profile = () => {
               </div>
               
               <div className="space-y-3">
-                {topics.map((topic, index) => {
-                  const completedLevels = topic.levels?.filter(l => 
-                    userData.levelProgress[l.id] === "completed"
-                  ).length || 0;
-                  const totalLevels = topic.levels?.length || 0;
-                  const isTopicCompleted = totalLevels > 0 && completedLevels === totalLevels;
-                  const topicProgress = totalLevels > 0 ? (completedLevels / totalLevels) * 100 : 0;
+                {[
+                  { id: 'e-waste', name: 'E-Waste Recycling' },
+                  { id: 'temperature-change', name: 'Temperature Change' }
+                ].map((topic, index) => {
+                  const topicData = userData.topicProgress?.[topic.id];
+                  const completedLevels = topicData 
+                    ? Object.values(topicData).filter(status => status === 'completed').length 
+                    : 0;
+                  const totalLevels = 10;
+                  const isTopicCompleted = completedLevels === totalLevels;
+                  const topicProgress = (completedLevels / totalLevels) * 100;
                   
                   return (
                     <div 
