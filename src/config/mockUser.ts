@@ -4,6 +4,8 @@ export interface Achievement {
   icon: string;
   color: string;
   earned: boolean;
+  description?: string;
+  earnedAt?: string;
 }
 
 export interface MockUser {

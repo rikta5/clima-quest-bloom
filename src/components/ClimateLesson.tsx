@@ -9,6 +9,7 @@ import { db } from '../lib/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { useTopicProgress } from '@/hooks/useTopicProgress';
+import { useAchievements } from '@/hooks/useAchievements';
 import confetti from 'canvas-confetti';
 
 interface Quiz {
@@ -39,6 +40,7 @@ export default function ClimateLesson() {
   const { topicId, levelNum } = useParams<{ topicId: string; levelNum: string }>();
   const navigate = useNavigate();
   const { completeLessonInLevel, getLessonProgress, getCorrectAnswers, getMedalForLevel, LESSONS_PER_LEVEL, userData, loading: progressLoading } = useTopicProgress();
+  const { checkLevelSpecificAchievements } = useAchievements();
   const [paragraph, setParagraph] = useState('');
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,6 +49,7 @@ export default function ClimateLesson() {
   const [topicTitle, setTopicTitle] = useState('');
   const [showMedal, setShowMedal] = useState(false);
   const [earnedMedal, setEarnedMedal] = useState<'gold' | 'silver' | 'bronze' | null>(null);
+  const [levelStartTime, setLevelStartTime] = useState<number>(Date.now());
   
   // Always derive current lesson from Firebase data - single source of truth
   const currentLesson = progressLoading || !userData || !topicId || !levelNum
@@ -62,6 +65,7 @@ export default function ClimateLesson() {
     setShowMedal(false);
     setEarnedMedal(null);
     setLoading(true);
+    setLevelStartTime(Date.now()); // Reset timer for new level
   }, [topicId, levelNum]);
 
   // Fetch lesson data when ready and lesson changes
@@ -360,7 +364,18 @@ Return ONLY valid JSON, nothing else.`;
       const { lessons: newLessonCount, correct: correctCount } = result;
       
       if (newLessonCount >= LESSONS_PER_LEVEL) {
-        // Level completed! Show medal
+        // Level completed! Calculate completion time
+        const completionTimeSeconds = Math.floor((Date.now() - levelStartTime) / 1000);
+        
+        // Check for achievements
+        await checkLevelSpecificAchievements(
+          topicId,
+          parseInt(levelNum),
+          correctCount,
+          completionTimeSeconds
+        );
+        
+        // Show medal
         const medal = getMedalForLevel(correctCount);
         setEarnedMedal(medal);
         setShowMedal(true);

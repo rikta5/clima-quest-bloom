@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Achievement } from '@/config/mockUser';
+import { Achievement } from '@/config/achievements';
 
 export interface UserData {
   name: string;

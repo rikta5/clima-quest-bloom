@@ -5,9 +5,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { useTopics } from "@/hooks/useTopics";
+import { ACHIEVEMENT_DEFINITIONS } from "@/config/achievements";
 import { Mail, User, CheckCircle2, Circle, LogOut, Loader2, Trophy, Target, Zap, TrendingUp, Calendar, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -109,6 +111,13 @@ const Profile = () => {
       }
     });
   }
+
+  // Merge earned achievements with all possible achievements
+  const earnedAchievementIds = new Set(userData.achievements?.map(a => a.id) || []);
+  const allAchievements = ACHIEVEMENT_DEFINITIONS.map(def => {
+    const earnedAchievement = userData.achievements?.find(a => a.id === def.id);
+    return earnedAchievement || { ...def, earned: false };
+  });
 
   return (
     <MainLayout>
@@ -263,46 +272,60 @@ const Profile = () => {
 
             {/* Achievements Section */}
             <Card className="p-8 space-y-6 hover:shadow-eco-lg transition-all duration-500 border-2 hover:border-accent/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center shadow-eco">
-                  <Trophy className="w-6 h-6 text-primary-foreground" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center shadow-eco">
+                    <Trophy className="w-6 h-6 text-primary-foreground" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-foreground">Achievements</h2>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground">Achievements</h2>
+                <Badge variant="default" className="text-sm px-4 py-2 bg-gradient-to-r from-accent to-primary">
+                  {earnedAchievementIds.size} / {ACHIEVEMENT_DEFINITIONS.length}
+                </Badge>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {userData.achievements.length > 0 ? userData.achievements.map((achievement, index) => (
-                  <div
-                    key={achievement.id}
-                    className={`group flex flex-col items-center space-y-3 transition-all duration-500 delay-${index * 100}`}
-                  >
-                    <div className={`
-                      relative w-28 h-28 rounded-2xl flex items-center justify-center text-5xl
-                      transition-all duration-500
-                      ${achievement.earned 
-                        ? achievement.color + ' shadow-eco-lg hover:scale-110 cursor-pointer hover:-rotate-6' 
-                        : 'bg-muted/50 opacity-40 grayscale hover:opacity-60'}
-                    `}>
-                      {achievement.earned && (
-                        <div className={`absolute inset-0 rounded-2xl ${achievement.color} blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500`} />
-                      )}
-                      <span className="relative">{achievement.icon}</span>
-                    </div>
-                    <div className="text-center">
-                      <p className={`text-sm font-bold ${achievement.earned ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        {achievement.name}
-                      </p>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="col-span-full text-center py-12 space-y-4">
-                    <div className="w-20 h-20 mx-auto rounded-full bg-muted/30 flex items-center justify-center">
-                      <Trophy className="w-10 h-10 text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground font-medium">Complete levels to earn achievements!</p>
-                  </div>
-                )}
-              </div>
+              <TooltipProvider>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {allAchievements.map((achievement, index) => (
+                    <Tooltip key={achievement.id}>
+                      <TooltipTrigger asChild>
+                        <div
+                          className={`group flex flex-col items-center space-y-2 transition-all duration-500 delay-${index * 50}`}
+                        >
+                          <div className={`
+                            relative w-24 h-24 rounded-2xl flex items-center justify-center text-4xl
+                            transition-all duration-500
+                            ${achievement.earned 
+                              ? achievement.color + ' shadow-eco-lg hover:scale-110 cursor-pointer hover:-rotate-6' 
+                              : 'bg-muted/50 opacity-40 grayscale hover:opacity-60'}
+                          `}>
+                            {achievement.earned && (
+                              <div className={`absolute inset-0 rounded-2xl ${achievement.color} blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500`} />
+                            )}
+                            <span className="relative text-3xl">{achievement.icon}</span>
+                          </div>
+                          <div className="text-center">
+                            <p className={`text-xs font-bold leading-tight ${achievement.earned ? 'text-foreground' : 'text-muted-foreground'}`}>
+                              {achievement.name}
+                            </p>
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <div className="space-y-1">
+                          <p className="font-bold">{achievement.name}</p>
+                          <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                          {achievement.earned && achievement.earnedAt && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Earned: {new Date(achievement.earnedAt).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
             </Card>
 
             {/* Completed Topics */}
