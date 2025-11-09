@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/MainLayout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Lock, CheckCircle2, Award } from 'lucide-react';
+import { ArrowLeft, Lock, CheckCircle2, Award, Sparkles, Trophy } from 'lucide-react';
 import { useTopicProgress } from '@/hooks/useTopicProgress';
+import { useEffect, useState } from 'react';
 
 const levelConfig = {
   'e-waste': {
@@ -46,13 +47,39 @@ const difficultyColors = {
   expert: 'from-purple-500 to-indigo-600'
 };
 
+// Circular positions for 10 levels in a web-like pattern
+const getNodePosition = (index: number, total: number) => {
+  const patterns = [
+    // Center start
+    { x: 50, y: 50 },
+    // First ring - 3 nodes
+    { x: 50, y: 20 },
+    { x: 75, y: 35 },
+    { x: 25, y: 35 },
+    // Second ring - 3 nodes
+    { x: 80, y: 50 },
+    { x: 65, y: 70 },
+    { x: 20, y: 50 },
+    // Third ring - 3 nodes
+    { x: 50, y: 80 },
+    { x: 35, y: 70 },
+    { x: 85, y: 70 },
+  ];
+  return patterns[index] || { x: 50, y: 50 };
+};
+
 export default function TopicLevels() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
   const { getTopicLevelStatus, getLessonProgress, getCorrectAnswers, getMedalForLevel, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
+  const [isVisible, setIsVisible] = useState(false);
   
   const config = topicId ? levelConfig[topicId as keyof typeof levelConfig] : null;
   const stats = topicId ? getTopicCompletionStats(topicId) : null;
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   if (!config) {
     return (
@@ -66,8 +93,14 @@ export default function TopicLevels() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8 px-4">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8 px-4 overflow-hidden">
+        {/* Animated background elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 right-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 left-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
+
+        <div className="max-w-6xl mx-auto space-y-8 relative z-10">
           <Button
             variant="ghost"
             onClick={() => navigate('/levels')}
@@ -77,89 +110,179 @@ export default function TopicLevels() {
             Back to Topics
           </Button>
 
-          <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              {config.title}
-            </h1>
-            <p className="text-muted-foreground">
-              {stats ? `${stats.completed} of ${stats.total} lessons completed • ${stats.levels}/10 levels done` : 'Complete all 50 lessons across 10 levels'}
+          <div className={`text-center space-y-3 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
+            <div className="flex items-center justify-center gap-3">
+              <Trophy className="w-8 h-8 text-primary" />
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
+                {config.title}
+              </h1>
+              <Trophy className="w-8 h-8 text-accent" />
+            </div>
+            <p className="text-lg text-muted-foreground">
+              {stats ? `${stats.completed} of ${stats.total} lessons completed • ${stats.levels}/10 levels mastered` : 'Complete all 50 lessons across 10 levels'}
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {config.levels.map((level) => {
-              const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
-              const lessonsCompleted = topicId ? getLessonProgress(topicId, level.id) : 0;
-              const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
-              const medal = getMedalForLevel(correctAnswers);
-              const isLocked = status === 'locked';
-              const isCompleted = status === 'completed';
-              const lessonProgress = (lessonsCompleted / LESSONS_PER_LEVEL) * 100;
+          {/* Web/Circular Layout */}
+          <div className={`relative w-full transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className="relative w-full aspect-[4/3] max-w-5xl mx-auto">
+              {/* SVG Connections */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+                <defs>
+                  <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.3 }} />
+                    <stop offset="100%" style={{ stopColor: 'hsl(var(--accent))', stopOpacity: 0.3 }} />
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                
+                {/* Draw connections between sequential levels */}
+                {config.levels.map((level, index) => {
+                  if (index === config.levels.length - 1) return null;
+                  const pos1 = getNodePosition(index, config.levels.length);
+                  const pos2 = getNodePosition(index + 1, config.levels.length);
+                  const status1 = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+                  const status2 = topicId ? getTopicLevelStatus(topicId, config.levels[index + 1].id) : 'locked';
+                  const isActive = status1 === 'completed' || status2 === 'unlocked' || status2 === 'completed';
+                  
+                  return (
+                    <line
+                      key={`line-${index}`}
+                      x1={`${pos1.x}%`}
+                      y1={`${pos1.y}%`}
+                      x2={`${pos2.x}%`}
+                      y2={`${pos2.y}%`}
+                      stroke={isActive ? "url(#lineGradient)" : "hsl(var(--muted))"}
+                      strokeWidth="3"
+                      strokeDasharray={isActive ? "0" : "5,5"}
+                      className={isActive ? "animate-pulse" : ""}
+                      style={{ 
+                        filter: isActive ? "url(#glow)" : "none",
+                        opacity: isActive ? 1 : 0.3
+                      }}
+                    />
+                  );
+                })}
+              </svg>
 
-              return (
-                <button
-                  key={level.id}
-                  onClick={() => !isLocked && navigate(`/climate-lesson/${topicId}/${level.id}`)}
-                  disabled={isLocked}
-                  className="group relative overflow-hidden rounded-xl border-2 border-border bg-card p-6 text-left transition-all hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${difficultyColors[level.difficulty]} opacity-10 group-hover:opacity-20 transition-opacity`} />
-                  
-                  {isCompleted && medal && (
-                    <div className="absolute top-2 right-2 z-10 text-3xl">
-                      {medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : '🥉'}
-                    </div>
-                  )}
-                  
-                  {isCompleted && !medal && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <CheckCircle2 className="w-6 h-6 text-green-500 fill-green-500/20" />
-                    </div>
-                  )}
-                  
-                  <div className="relative space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} text-white font-bold text-lg shadow-lg`}>
-                        {isLocked ? <Lock className="w-5 h-5" /> : level.id}
+              {/* Level Nodes */}
+              {config.levels.map((level, index) => {
+                const position = getNodePosition(index, config.levels.length);
+                const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+                const lessonsCompleted = topicId ? getLessonProgress(topicId, level.id) : 0;
+                const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
+                const medal = getMedalForLevel(correctAnswers);
+                const isLocked = status === 'locked';
+                const isCompleted = status === 'completed';
+                const lessonProgress = (lessonsCompleted / LESSONS_PER_LEVEL) * 100;
+
+                return (
+                  <div
+                    key={level.id}
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
+                    style={{
+                      left: `${position.x}%`,
+                      top: `${position.y}%`,
+                      zIndex: 10,
+                      animationDelay: `${index * 100}ms`,
+                      animation: isVisible ? 'scale-in 0.5s ease-out forwards' : 'none'
+                    }}
+                  >
+                    <button
+                      onClick={() => !isLocked && navigate(`/climate-lesson/${topicId}/${level.id}`)}
+                      disabled={isLocked}
+                      className="group relative"
+                    >
+                      {/* Glow effect for active/completed */}
+                      {!isLocked && (
+                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300`} />
+                      )}
+                      
+                      {/* Main node circle */}
+                      <div
+                        className={`
+                          relative w-20 h-20 md:w-24 md:h-24 rounded-full 
+                          flex items-center justify-center
+                          border-4 font-bold text-xl
+                          transition-all duration-300
+                          ${isLocked 
+                            ? 'bg-muted border-muted-foreground/20 cursor-not-allowed' 
+                            : `bg-gradient-to-br ${difficultyColors[level.difficulty]} border-white shadow-eco-lg cursor-pointer hover:scale-125 hover:rotate-12`
+                          }
+                        `}
+                      >
+                        {isLocked && <Lock className="w-6 h-6 text-muted-foreground" />}
+                        {!isLocked && !isCompleted && <span className="text-white">{level.id}</span>}
+                        {isCompleted && <CheckCircle2 className="w-8 h-8 text-white" />}
+                        
+                        {/* Medal overlay */}
+                        {medal && (
+                          <div className="absolute -top-2 -right-2 text-2xl animate-bounce">
+                            {medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : '🥉'}
+                          </div>
+                        )}
+                        
+                        {/* Sparkles for unlocked */}
+                        {status === 'unlocked' && (
+                          <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-yellow-400 animate-pulse" />
+                        )}
                       </div>
-                      <span className={`rounded-full px-3 py-1 text-xs font-semibold bg-gradient-to-r ${difficultyColors[level.difficulty]} text-white`}>
-                        {level.difficulty}
-                      </span>
-                    </div>
-                    
-                    <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                      {level.title}
-                    </h3>
-                    
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground font-medium">
-                          {lessonsCompleted}/{LESSONS_PER_LEVEL} lessons
-                        </span>
-                        <span className="font-semibold text-primary">
-                          {isCompleted ? (medal ? `${correctAnswers}/5 ✓` : 'Done') : isLocked ? 'Locked' : lessonsCompleted === 0 ? 'Start' : 'In Progress'}
-                        </span>
+
+                      {/* Info card on hover */}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50">
+                        <div className="bg-card border-2 border-border rounded-xl p-4 shadow-eco-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className={`text-xs font-bold px-2 py-1 rounded-full bg-gradient-to-r ${difficultyColors[level.difficulty]} text-white`}>
+                              {level.difficulty}
+                            </span>
+                            <span className="text-xs text-muted-foreground font-medium">
+                              Level {level.id}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-sm text-foreground">{level.title}</h4>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Progress</span>
+                              <span className="font-semibold text-primary">{lessonsCompleted}/{LESSONS_PER_LEVEL}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-primary to-accent"
+                                style={{ width: `${lessonProgress}%` }}
+                              />
+                            </div>
+                          </div>
+                          {!isLocked && (
+                            <div className="text-xs font-semibold text-primary text-center pt-1">
+                              {isCompleted ? '✓ Completed' : 'Click to Play'}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-                          style={{ width: `${lessonProgress}%` }}
-                        />
-                      </div>
-                    </div>
+                    </button>
                   </div>
-                </button>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
-          <div className="mt-8 p-4 rounded-lg bg-muted/50 border">
-            <h3 className="font-semibold mb-2">Difficulty Levels:</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {/* Legend */}
+          <div className={`mt-12 p-6 rounded-xl bg-card/50 backdrop-blur-sm border-2 border-border transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5 text-primary" />
+              Difficulty Levels
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(difficultyColors).map(([difficulty, colors]) => (
-                <div key={difficulty} className="flex items-center gap-2">
-                  <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${colors}`} />
-                  <span className="text-sm capitalize">{difficulty}</span>
+                <div key={difficulty} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${colors} shadow-lg`} />
+                  <span className="text-sm font-semibold capitalize">{difficulty}</span>
                 </div>
               ))}
             </div>
