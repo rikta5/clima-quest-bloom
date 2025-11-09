@@ -44,14 +44,14 @@ const levelConfig = {
 };
 
 const difficultyColors = {
-  beginner: 'from-blue-500 to-cyan-500',
+  beginner: 'from-green-600 to-emerald-700',
   intermediate: 'from-yellow-500 to-orange-500',
   advanced: 'from-red-500 to-pink-500',
   expert: 'from-purple-600 to-indigo-700'
 };
 
 const difficultyShadows = {
-  beginner: 'shadow-[0_0_20px_rgba(59,130,246,0.5)]',
+  beginner: 'shadow-[0_0_20px_rgba(5,150,105,0.5)]',
   intermediate: 'shadow-[0_0_20px_rgba(249,115,22,0.5)]',
   advanced: 'shadow-[0_0_20px_rgba(239,68,68,0.5)]',
   expert: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]'
@@ -104,7 +104,7 @@ export default function TopicLevels() {
 
   // Group levels into sections
   const sections = [
-    { name: 'Beginner', range: [1, 3], color: 'from-blue-500 to-cyan-500' },
+    { name: 'Beginner', range: [1, 3], color: 'from-green-600 to-emerald-700' },
     { name: 'Intermediate', range: [4, 7], color: 'from-yellow-500 to-orange-500' },
     { name: 'Advanced', range: [8, 10], color: 'from-red-500 to-pink-500' },
   ];
@@ -332,11 +332,10 @@ export default function TopicLevels() {
                 return (
                   <div
                     key={level.id}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 hover:z-[100] z-10"
                     style={{
                       left: `${position.x}%`,
                       top: `${position.y}%`,
-                      zIndex: 10,
                       animationDelay: `${index * 100}ms`,
                       animation: isVisible ? 'scale-in 0.5s ease-out forwards' : 'none'
                     }}
