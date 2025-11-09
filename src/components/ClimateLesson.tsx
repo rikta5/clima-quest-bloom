@@ -164,17 +164,52 @@ Make it engaging, informative, and easy to understand.`;
       const generatedParagraph = paragraphResult.response.text();
       setParagraph(generatedParagraph);
 
-      const quizPrompt = `Based on this paragraph:
+      const questionTypes = [
+        {
+          question: `What percentage of electronic waste did ${data.Entity} recycle in ${data.Year}?`,
+          options: [`${Math.max(0, recyclingRate - 20)}%`, `${Math.max(0, recyclingRate - 10)}%`, `${recyclingRate}%`, `${recyclingRate + 10}%`],
+          correctIndex: 2
+        },
+        {
+          question: `Why is e-waste recycling important for the environment?`,
+          options: [
+            "It only saves money",
+            "It prevents toxic materials from polluting soil and water",
+            "It makes electronics cheaper",
+            "It reduces electricity usage"
+          ],
+          correctIndex: 1
+        },
+        {
+          question: `What happens when e-waste is not properly recycled?`,
+          options: [
+            "Nothing significant occurs",
+            "It creates more jobs",
+            "Toxic substances can leak into the environment",
+            "Electronics become more valuable"
+          ],
+          correctIndex: 2
+        },
+        {
+          question: `Countries with high e-waste recycling rates generally see:`,
+          options: [
+            "Decreased environmental protection",
+            "Better resource recovery and less pollution",
+            "Higher electronics prices",
+            "Reduced technology innovation"
+          ],
+          correctIndex: 1
+        }
+      ];
+
+      const randomQuestion = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+      const quizPrompt = `Based on this paragraph about e-waste in ${data.Entity}:
 "${generatedParagraph}"
 
 Generate ONE multiple-choice question in this EXACT JSON format (no other text):
-{
-  "question": "What percentage of electronic waste did ${data.Entity} recycle in ${data.Year}?",
-  "options": ["${Math.max(0, recyclingRate - 20)}%", "${Math.max(0, recyclingRate - 10)}%", "${recyclingRate}%", "${recyclingRate + 10}%"],
-  "correctIndex": 2
-}
+${JSON.stringify(randomQuestion)}
 
-The question should test understanding of the main facts in the paragraph.
+Adapt the question and options to fit the context of the paragraph while maintaining the question type.
 Return ONLY valid JSON, nothing else.`;
 
       const quizResult = await geminiModel.generateContent(quizPrompt);
@@ -215,24 +250,57 @@ Make it engaging, informative, and easy to understand.`;
       const generatedParagraph = paragraphResult.response.text();
       setParagraph(generatedParagraph);
 
-      const options = [
-        (value - 1).toFixed(2),
-        (value - 0.4).toFixed(2),
-        value.toFixed(2),
-        (value + 1).toFixed(2)
-      ].map(v => `${v}${data.Unit}`);
+      const questionTypes = [
+        {
+          question: `What was ${data.Area}'s temperature anomaly in ${year} compared to the 1961 baseline?`,
+          options: [
+            `${(value - 1).toFixed(2)}${data.Unit}`,
+            `${(value - 0.4).toFixed(2)}${data.Unit}`,
+            `${value.toFixed(2)}${data.Unit}`,
+            `${(value + 1).toFixed(2)}${data.Unit}`
+          ],
+          correctIndex: 2
+        },
+        {
+          question: `What does a temperature anomaly indicate?`,
+          options: [
+            "The current temperature",
+            "How much temperature differs from a baseline average",
+            "The hottest day of the year",
+            "The humidity level"
+          ],
+          correctIndex: 1
+        },
+        {
+          question: `Rising temperature anomalies primarily result from:`,
+          options: [
+            "Natural weather variations only",
+            "Seasonal changes",
+            "Human activities increasing greenhouse gases",
+            "Ocean currents alone"
+          ],
+          correctIndex: 2
+        },
+        {
+          question: `Why do scientists track temperature anomalies over time?`,
+          options: [
+            "To predict daily weather",
+            "To identify long-term climate change patterns",
+            "To set thermostat levels",
+            "To measure rainfall"
+          ],
+          correctIndex: 1
+        }
+      ];
 
-      const quizPrompt = `Based on this paragraph:
+      const randomQuestion = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+      const quizPrompt = `Based on this paragraph about temperature change in ${data.Area}:
 "${generatedParagraph}"
 
 Generate ONE multiple-choice question in this EXACT JSON format (no other text):
-{
-  "question": "What was ${data.Area}'s temperature anomaly in ${year} compared to the 1961 baseline?",
-  "options": ${JSON.stringify(options)},
-  "correctIndex": 2
-}
+${JSON.stringify(randomQuestion)}
 
-The question should test understanding of the main facts in the paragraph.
+Adapt the question and options to fit the context of the paragraph while maintaining the question type.
 Return ONLY valid JSON, nothing else.`;
 
       const quizResult = await geminiModel.generateContent(quizPrompt);
