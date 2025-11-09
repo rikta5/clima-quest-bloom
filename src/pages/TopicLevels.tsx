@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/MainLayout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Lock, CheckCircle2, Award, Sparkles, Trophy } from 'lucide-react';
+import { ArrowLeft, Lock, CheckCircle2, Award, Sparkles, Trophy, ChevronRight } from 'lucide-react';
 import { useTopicProgress } from '@/hooks/useTopicProgress';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import confetti from 'canvas-confetti';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 const levelConfig = {
   'e-waste': {
@@ -81,6 +84,7 @@ export default function TopicLevels() {
   const { getTopicLevelStatus, getLessonProgress, getCorrectAnswers, getMedalForLevel, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
   const [isVisible, setIsVisible] = useState(false);
   const [pathProgress, setPathProgress] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const config = topicId ? levelConfig[topicId as keyof typeof levelConfig] : null;
   const stats = topicId ? getTopicCompletionStats(topicId) : null;
@@ -89,6 +93,54 @@ export default function TopicLevels() {
   const currentLevelIndex = config?.levels.findIndex(level => 
     topicId && getTopicLevelStatus(topicId, level.id) === 'unlocked'
   ) ?? -1;
+
+  // Calculate completed levels with medals
+  const completedWithMedals = config?.levels.filter(level => {
+    const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+    const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
+    const medal = getMedalForLevel(correctAnswers);
+    return status === 'completed' && medal;
+  }).length ?? 0;
+
+  // Group levels into sections
+  const sections = [
+    { name: 'Beginner', range: [1, 3], color: 'from-blue-500 to-cyan-500' },
+    { name: 'Intermediate', range: [4, 7], color: 'from-yellow-500 to-orange-500' },
+    { name: 'Advanced', range: [8, 10], color: 'from-red-500 to-pink-500' },
+  ];
+
+  const scrollToLevel = (levelId: number) => {
+    const position = getNodePosition(levelId - 1, config?.levels.length ?? 10);
+    if (containerRef.current) {
+      const container = containerRef.current.querySelector('.aspect-\\[4\\/3\\]') as HTMLElement;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const targetX = (rect.width * position.x) / 100;
+        const targetY = (rect.height * position.y) / 100;
+        
+        window.scrollTo({
+          top: targetY + container.offsetTop - window.innerHeight / 2,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  const triggerConfetti = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    confetti({
+      particleCount: 30,
+      spread: 60,
+      origin: { x, y },
+      colors: ['#FFD700', '#FFA500', '#FF6347', '#87CEEB'],
+      ticks: 100,
+      gravity: 0.8,
+      scalar: 0.8
+    });
+  };
 
   useEffect(() => {
     setIsVisible(true);
@@ -139,7 +191,7 @@ export default function TopicLevels() {
             Back to Topics
           </Button>
 
-          <div className={`text-center space-y-3 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
+          <div className={`text-center space-y-4 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
             <div className="flex items-center justify-center gap-3">
               <Trophy className="w-8 h-8 text-primary" />
               <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
@@ -150,10 +202,55 @@ export default function TopicLevels() {
             <p className="text-lg text-muted-foreground">
               {stats ? `${stats.completed} of ${stats.total} lessons completed • ${stats.levels}/10 levels mastered` : 'Complete all 50 lessons across 10 levels'}
             </p>
+            
+            {/* Progress Indicator */}
+            <div className="max-w-2xl mx-auto space-y-3 p-4 rounded-xl bg-card/80 backdrop-blur-sm border-2 border-border">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold text-foreground">Journey Progress</span>
+                <Badge variant="default" className="bg-gradient-to-r from-primary to-accent">
+                  {stats?.levels || 0}/10 Levels
+                </Badge>
+              </div>
+              <Progress value={(stats?.levels || 0) * 10} className="h-3" />
+              
+              {/* Section Navigation */}
+              <div className="flex gap-2 justify-center flex-wrap pt-2">
+                {sections.map((section) => {
+                  const sectionLevels = config?.levels.filter(l => 
+                    l.id >= section.range[0] && l.id <= section.range[1]
+                  ) ?? [];
+                  const completedInSection = sectionLevels.filter(l => 
+                    topicId && getTopicLevelStatus(topicId, l.id) === 'completed'
+                  ).length;
+                  
+                  return (
+                    <Button
+                      key={section.name}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => scrollToLevel(section.range[0])}
+                      className={`gap-2 hover:scale-105 transition-all bg-gradient-to-r ${section.color} text-white border-0 hover:opacity-90`}
+                    >
+                      {section.name}
+                      <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                        {completedInSection}/{sectionLevels.length}
+                      </Badge>
+                      <ChevronRight className="w-3 h-3" />
+                    </Button>
+                  );
+                })}
+              </div>
+              
+              {completedWithMedals > 0 && (
+                <div className="text-center text-sm text-muted-foreground">
+                  🏆 {completedWithMedals} level{completedWithMedals > 1 ? 's' : ''} completed with medals!
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Web/Circular Layout */}
-          <div className={`relative w-full transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div ref={containerRef} className={`relative w-full transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             <div className="relative w-full aspect-[4/3] max-w-5xl mx-auto">
               {/* SVG Connections */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
@@ -246,6 +343,7 @@ export default function TopicLevels() {
                   >
                     <button
                       onClick={() => !isLocked && navigate(`/climate-lesson/${topicId}/${level.id}`)}
+                      onMouseEnter={(e) => medal && triggerConfetti(e)}
                       disabled={isLocked}
                       className="group relative"
                     >
