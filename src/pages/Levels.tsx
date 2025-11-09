@@ -64,18 +64,6 @@ const Levels = () => {
             );
           })}
         </div>
-
-        {/* Additional Info Card */}
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20">
-          <div className="flex items-center gap-3 mb-3">
-            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-            <h2 className="text-xl font-bold">How It Works</h2>
-          </div>
-          <p className="text-muted-foreground">
-            Each topic uses real data from Firestore collections. Our AI generates educational paragraphs 
-            and interactive quizzes based on actual climate statistics. Click on any topic above to start learning!
-          </p>
-        </Card>
       </div>
     </MainLayout>
   );
