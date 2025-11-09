@@ -37,7 +37,7 @@ interface TempChangeData {
 export default function ClimateLesson() {
   const { topicId, levelNum } = useParams<{ topicId: string; levelNum: string }>();
   const navigate = useNavigate();
-  const { completeLessonInLevel, getLessonProgress, getCorrectAnswers, getMedalForLevel, LESSONS_PER_LEVEL } = useTopicProgress();
+  const { completeLessonInLevel, getLessonProgress, getCorrectAnswers, getMedalForLevel, LESSONS_PER_LEVEL, userData, loading: progressLoading } = useTopicProgress();
   const [paragraph, setParagraph] = useState('');
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,19 +47,37 @@ export default function ClimateLesson() {
   const [currentLesson, setCurrentLesson] = useState(1);
   const [showMedal, setShowMedal] = useState(false);
   const [earnedMedal, setEarnedMedal] = useState<'gold' | 'silver' | 'bronze' | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
+  // Reset initialization when navigating to a different level
   useEffect(() => {
-    const initializeLesson = async () => {
-      if (topicId && levelNum) {
-        const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
-        const nextLesson = Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL);
-        setCurrentLesson(nextLesson);
-        console.log(`Level ${levelNum}: ${lessonsCompleted} lessons completed, showing lesson ${nextLesson}`);
-      }
-      await fetchClimateData();
-    };
-    initializeLesson();
+    setInitialized(false);
+    setLoading(true);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setParagraph('');
+    setQuiz(null);
+    setShowMedal(false);
+    setEarnedMedal(null);
   }, [topicId, levelNum]);
+
+  // Initialize lesson progress when userData is loaded
+  useEffect(() => {
+    if (!progressLoading && userData && topicId && levelNum && !initialized) {
+      const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
+      const nextLesson = Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL);
+      setCurrentLesson(nextLesson);
+      setInitialized(true);
+      console.log(`Level ${levelNum}: ${lessonsCompleted} lessons completed, showing lesson ${nextLesson}`);
+    }
+  }, [progressLoading, userData, topicId, levelNum, initialized]);
+
+  // Fetch lesson data when initialized
+  useEffect(() => {
+    if (initialized) {
+      fetchClimateData();
+    }
+  }, [initialized]);
 
   const getRandomYearField = (data: TempChangeData): { year: string; value: number } | null => {
     const yearFields = Object.keys(data).filter(key => key.startsWith('Y') && key.length === 5);
@@ -386,13 +404,15 @@ Return ONLY valid JSON, nothing else.`;
     setLoading(false);
   };
 
-  if (loading) {
+  if (loading || progressLoading || !initialized) {
     return (
       <MainLayout>
         <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
           <Sparkles className="w-12 h-12 text-primary animate-pulse" />
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <span className="text-xl text-muted-foreground">Generating AI-powered lesson...</span>
+          <span className="text-xl text-muted-foreground">
+            {!initialized ? 'Loading your progress...' : 'Generating AI-powered lesson...'}
+          </span>
         </div>
       </MainLayout>
     );
