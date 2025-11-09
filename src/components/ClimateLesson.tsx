@@ -74,11 +74,12 @@ export default function ClimateLesson() {
             
             // Extract recycling rate from nested structure
             let recyclingRate = null;
-            if (data['12']) {
-              // Try to find the rate in the nested object
-              const field12 = data['12'];
-              if (field12['5'] !== undefined) {
-                recyclingRate = typeof field12['5'] === 'string' ? parseFloat(field12['5']) : field12['5'];
+            if (data['12'] && data['12']['5']) {
+              const field5 = data['12']['5'];
+              // The value is in a nested object with a long key
+              const rateKey = Object.keys(field5).find(key => key.includes('EN_EWT_RCYR'));
+              if (rateKey && field5[rateKey] !== undefined) {
+                recyclingRate = typeof field5[rateKey] === 'string' ? parseFloat(field5[rateKey]) : field5[rateKey];
               }
             }
             
@@ -140,8 +141,12 @@ export default function ClimateLesson() {
     try {
       // Extract recycling rate from nested structure
       let recyclingRate = 0;
-      if (data['12'] && data['12']['5'] !== undefined) {
-        recyclingRate = typeof data['12']['5'] === 'string' ? parseFloat(data['12']['5']) : data['12']['5'];
+      if (data['12'] && data['12']['5']) {
+        const field5 = data['12']['5'];
+        const rateKey = Object.keys(field5).find(key => key.includes('EN_EWT_RCYR'));
+        if (rateKey && field5[rateKey] !== undefined) {
+          recyclingRate = typeof field5[rateKey] === 'string' ? parseFloat(field5[rateKey]) : field5[rateKey];
+        }
       }
       
       console.log('Generating content for:', {
