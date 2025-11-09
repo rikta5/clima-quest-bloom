@@ -65,10 +65,11 @@ const Levels = () => {
                 <CardHeader>
                   <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-xl bg-gradient-to-br ${topic.color} text-white ${!isLocked && 'group-hover:scale-110'} transition-transform relative`}>
-                      {isLocked ? (
-                        <Lock className="w-8 h-8" />
-                      ) : (
-                        <Icon className="w-8 h-8" />
+                      <Icon className="w-8 h-8" />
+                      {isLocked && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl backdrop-blur-sm">
+                          <Lock className="w-6 h-6" />
+                        </div>
                       )}
                     </div>
                     <div className="flex-1">
