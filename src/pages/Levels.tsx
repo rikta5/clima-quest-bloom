@@ -1,71 +1,80 @@
 import { MainLayout } from "@/components/MainLayout";
-import { TopicCarousel } from "@/components/TopicCarousel";
-import { useTopics } from "@/hooks/useTopics";
-import { Card } from "@/components/ui/card";
-import { Loader2, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles, Recycle, ThermometerSun } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Levels = () => {
-  const { topics, loading, error } = useTopics();
+  const navigate = useNavigate();
 
-  if (loading) {
-    return (
-      <MainLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <MainLayout>
-        <div className="text-center py-12 space-y-4">
-          <p className="text-destructive font-semibold">{error}</p>
-          <p className="text-muted-foreground">Please make sure topics are configured in Firestore</p>
-        </div>
-      </MainLayout>
-    );
-  }
-
-  if (topics.length === 0) {
-    return (
-      <MainLayout>
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No topics available yet</p>
-        </div>
-      </MainLayout>
-    );
-  }
+  const topics = [
+    {
+      id: "e-waste",
+      title: "E-Waste Recycling",
+      description: "Learn about electronic waste recycling rates around the world and why it matters for our planet",
+      icon: Recycle,
+      color: "from-green-500 to-emerald-600",
+      collection: "electronic-waste-recycling-rate"
+    },
+    {
+      id: "temperature-change",
+      title: "Temperature Change",
+      description: "Understand global temperature anomalies and their impact on climate change",
+      icon: ThermometerSun,
+      color: "from-orange-500 to-red-600",
+      collection: "temperature_change"
+    }
+  ];
 
   return (
     <MainLayout>
       <div className="space-y-8">
-        <TopicCarousel topics={topics} />
-        
-        {/* AI-Powered Climate Lessons */}
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20 hover:border-primary/40 transition-all">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  AI-Powered Climate Lessons
-                </h2>
-              </div>
-              <p className="text-muted-foreground">
-                Learn about real climate data through interactive AI-generated lessons and quizzes
-              </p>
-            </div>
-            <Link 
-              to="/climate-levels"
-              className="px-6 py-3 bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground rounded-lg font-semibold transition-all flex items-center gap-2 hover:scale-105 active:scale-95"
-            >
-              Start Learning
-              <Sparkles className="w-5 h-5" />
-            </Link>
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Climate Education Topics
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Explore real climate data through AI-powered lessons and quizzes
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {topics.map((topic) => {
+            const Icon = topic.icon;
+            return (
+              <Card
+                key={topic.id}
+                className="group cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden border-2 hover:border-primary"
+                onClick={() => navigate(`/climate-lesson/${topic.id}`)}
+              >
+                <div className={`h-2 bg-gradient-to-r ${topic.color}`} />
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${topic.color} text-white group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-8 h-8" />
+                    </div>
+                    <CardTitle className="text-2xl">{topic.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {topic.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Additional Info Card */}
+        <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-primary/20">
+          <div className="flex items-center gap-3 mb-3">
+            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+            <h2 className="text-xl font-bold">How It Works</h2>
           </div>
+          <p className="text-muted-foreground">
+            Each topic uses real data from Firestore collections. Our AI generates educational paragraphs 
+            and interactive quizzes based on actual climate statistics. Click on any topic above to start learning!
+          </p>
         </Card>
       </div>
     </MainLayout>

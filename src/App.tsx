@@ -14,7 +14,6 @@ import Profile from "./pages/Profile";
 import Reels from "./pages/Reels";
 import NotFound from "./pages/NotFound";
 import ClimateLesson from "./components/ClimateLesson";
-import ClimateLevels from "./pages/ClimateLevels";
 import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
@@ -45,7 +44,6 @@ const App = () => (
             <Route path="/levels/:id" element={<ProtectedRoute><LevelDetail /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
-            <Route path="/climate-levels" element={<ProtectedRoute><ClimateLevels /></ProtectedRoute>} />
             <Route path="/climate-lesson/:levelId" element={<ProtectedRoute><ClimateLesson /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
