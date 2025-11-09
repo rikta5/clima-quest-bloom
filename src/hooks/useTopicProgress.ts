@@ -16,6 +16,20 @@ export const useTopicProgress = () => {
     return userData.topicProgress[topicId][levelNum] || 0;
   };
 
+  const getCorrectAnswers = (topicId: string, levelNum: number): number => {
+    if (!userData?.topicCorrectAnswers?.[topicId]?.[levelNum]) {
+      return 0;
+    }
+    return userData.topicCorrectAnswers[topicId][levelNum] || 0;
+  };
+
+  const getMedalForLevel = (correctAnswers: number): 'gold' | 'silver' | 'bronze' | null => {
+    if (correctAnswers === 5) return 'gold';
+    if (correctAnswers === 4) return 'silver';
+    if (correctAnswers === 3) return 'bronze';
+    return null;
+  };
+
   const getTopicLevelStatus = (topicId: string, levelNum: number): 'locked' | 'unlocked' | 'completed' => {
     if (!userData?.topicProgress) {
       return levelNum === 1 ? "unlocked" : "locked";
@@ -47,7 +61,7 @@ export const useTopicProgress = () => {
     return prevLevelLessons >= LESSONS_PER_LEVEL ? "unlocked" : "locked";
   };
 
-  const completeLessonInLevel = async (topicId: string, levelNum: number, pointsEarned: number = 2) => {
+  const completeLessonInLevel = async (topicId: string, levelNum: number, isCorrect: boolean) => {
     if (!user || !userData) {
       console.log('No user or userData');
       return null;
@@ -55,14 +69,21 @@ export const useTopicProgress = () => {
 
     try {
       const currentLessons = getLessonProgress(topicId, levelNum);
-      const newLessons = Math.min(currentLessons + 1, LESSONS_PER_LEVEL);
+      const currentCorrect = getCorrectAnswers(topicId, levelNum);
       
-      console.log(`Completing lesson: current=${currentLessons}, new=${newLessons}`);
+      const newLessons = Math.min(currentLessons + 1, LESSONS_PER_LEVEL);
+      const newCorrect = isCorrect ? Math.min(currentCorrect + 1, LESSONS_PER_LEVEL) : currentCorrect;
+      
+      // Award 2 points for correct, 1 point for incorrect (still learning!)
+      const pointsEarned = isCorrect ? 2 : 1;
+      
+      console.log(`Completing lesson: current=${currentLessons}, new=${newLessons}, correct=${newCorrect}`);
       
       const userRef = doc(db, 'users', user.uid);
       
       await updateDoc(userRef, {
         [`topicProgress.${topicId}.${levelNum}`]: newLessons,
+        [`topicCorrectAnswers.${topicId}.${levelNum}`]: newCorrect,
         ecoPoints: userData.ecoPoints + pointsEarned
       });
 
@@ -84,7 +105,7 @@ export const useTopicProgress = () => {
       // Force a small delay to ensure Firestore write completes
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      return newLessons;
+      return { lessons: newLessons, correct: newCorrect };
     } catch (error) {
       console.error('Error completing lesson:', error);
       return null;
@@ -123,6 +144,8 @@ export const useTopicProgress = () => {
     loading,
     getTopicLevelStatus,
     getLessonProgress,
+    getCorrectAnswers,
+    getMedalForLevel,
     completeLessonInLevel,
     getTopicCompletionStats,
     LESSONS_PER_LEVEL

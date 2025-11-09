@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { geminiModel } from '../config/gemini';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Loader2, ArrowLeft, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, Sparkles, Award } from 'lucide-react';
 import { MainLayout } from './MainLayout';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
@@ -37,7 +37,7 @@ interface TempChangeData {
 export default function ClimateLesson() {
   const { topicId, levelNum } = useParams<{ topicId: string; levelNum: string }>();
   const navigate = useNavigate();
-  const { completeLessonInLevel, getLessonProgress, LESSONS_PER_LEVEL } = useTopicProgress();
+  const { completeLessonInLevel, getLessonProgress, getCorrectAnswers, getMedalForLevel, LESSONS_PER_LEVEL } = useTopicProgress();
   const [paragraph, setParagraph] = useState('');
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +45,8 @@ export default function ClimateLesson() {
   const [showResult, setShowResult] = useState(false);
   const [topicTitle, setTopicTitle] = useState('');
   const [currentLesson, setCurrentLesson] = useState(1);
+  const [showMedal, setShowMedal] = useState(false);
+  const [earnedMedal, setEarnedMedal] = useState<'gold' | 'silver' | 'bronze' | null>(null);
 
   useEffect(() => {
     const initializeLesson = async () => {
@@ -338,25 +340,37 @@ Return ONLY valid JSON, nothing else.`;
   };
 
   const handleNextLesson = async () => {
-    // If user answered correctly, mark lesson as complete
-    if (selectedAnswer === quiz?.correctIndex && topicId && levelNum) {
-      const newLessonCount = await completeLessonInLevel(topicId, parseInt(levelNum), 2);
+    if (!topicId || !levelNum) return;
+
+    // Always complete the lesson (regardless of correct/incorrect)
+    const isCorrect = selectedAnswer === quiz?.correctIndex;
+    const result = await completeLessonInLevel(topicId, parseInt(levelNum), isCorrect);
+    
+    console.log(`Completed lesson, result:`, result);
+    
+    if (result !== null) {
+      const { lessons: newLessonCount, correct: correctCount } = result;
       
-      console.log(`Completed lesson, new count: ${newLessonCount}`);
-      
-      if (newLessonCount !== null) {
-        if (newLessonCount >= LESSONS_PER_LEVEL) {
-          toast.success('Level completed! All 5 lessons done! +2 Eco Points');
-          // Navigate back to topic levels page after completing all lessons
-          setTimeout(() => navigate(`/topic/${topicId}`), 2000);
-          return;
-        } else {
-          // Update the current lesson count to show progress
-          const nextLesson = newLessonCount + 1;
-          setCurrentLesson(nextLesson);
-          toast.success(`Lesson ${newLessonCount}/${LESSONS_PER_LEVEL} completed! +2 Eco Points`);
-          console.log(`Set current lesson to: ${nextLesson}`);
-        }
+      if (newLessonCount >= LESSONS_PER_LEVEL) {
+        // Level completed! Show medal
+        const medal = getMedalForLevel(correctCount);
+        setEarnedMedal(medal);
+        setShowMedal(true);
+        
+        const medalText = medal ? `${medal.charAt(0).toUpperCase() + medal.slice(1)} Medal! 🏆` : 'Completed!';
+        const pointsText = isCorrect ? '+2 Eco Points' : '+1 Eco Point';
+        toast.success(`Level completed! ${correctCount}/5 correct - ${medalText} ${pointsText}`);
+        
+        // Navigate back after showing medal
+        setTimeout(() => navigate(`/topic/${topicId}`), 3000);
+        return;
+      } else {
+        // Update the current lesson count to show progress
+        const nextLesson = newLessonCount + 1;
+        setCurrentLesson(nextLesson);
+        const pointsText = isCorrect ? '+2 Eco Points' : '+1 Eco Point';
+        toast.success(`Lesson ${newLessonCount}/${LESSONS_PER_LEVEL} completed! ${pointsText}`);
+        console.log(`Set current lesson to: ${nextLesson}`);
       }
     }
 
@@ -386,7 +400,46 @@ Return ONLY valid JSON, nothing else.`;
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8 px-4">
+      {showMedal ? (
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8 px-4 flex items-center justify-center">
+          <Card className="max-w-2xl w-full p-12 text-center space-y-8 border-2 shadow-2xl">
+            <div className="space-y-4">
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Level {levelNum} Complete!
+              </h2>
+              
+              {earnedMedal && (
+                <div className="flex flex-col items-center gap-4 py-8">
+                  <div className={`text-8xl animate-bounce ${
+                    earnedMedal === 'gold' ? '🥇' :
+                    earnedMedal === 'silver' ? '🥈' : '🥉'
+                  }`}>
+                    {earnedMedal === 'gold' ? '🥇' :
+                     earnedMedal === 'silver' ? '🥈' : '🥉'}
+                  </div>
+                  <p className="text-2xl font-bold text-primary">
+                    {earnedMedal.charAt(0).toUpperCase() + earnedMedal.slice(1)} Medal Earned!
+                  </p>
+                </div>
+              )}
+              
+              {!earnedMedal && (
+                <div className="py-8">
+                  <p className="text-xl text-muted-foreground">
+                    Level completed! Keep practicing to earn medals.
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Get 3+ correct answers to earn bronze, 4+ for silver, 5/5 for gold!
+                  </p>
+                </div>
+              )}
+              
+              <p className="text-muted-foreground">Returning to level selection...</p>
+            </div>
+          </Card>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 py-8 px-4">
         <div className="max-w-4xl mx-auto space-y-6">
           <Button
             variant="ghost"
@@ -482,7 +535,8 @@ Return ONLY valid JSON, nothing else.`;
             </CardContent>
           </Card>
         </div>
-      </div>
+        </div>
+      )}
     </MainLayout>
   );
 }

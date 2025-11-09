@@ -64,6 +64,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           1: 0 // 0 lessons completed, but level is accessible
         }
       },
+      topicCorrectAnswers: {
+        'e-waste': {
+          1: 0
+        },
+        'temperature-change': {
+          1: 0
+        }
+      },
       streak: 1,
       lastLoginDate: today
     });

@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/MainLayout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Lock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Lock, CheckCircle2, Award } from 'lucide-react';
 import { useTopicProgress } from '@/hooks/useTopicProgress';
 
 const levelConfig = {
@@ -49,7 +49,7 @@ const difficultyColors = {
 export default function TopicLevels() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
-  const { getTopicLevelStatus, getLessonProgress, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
+  const { getTopicLevelStatus, getLessonProgress, getCorrectAnswers, getMedalForLevel, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
   
   const config = topicId ? levelConfig[topicId as keyof typeof levelConfig] : null;
   const stats = topicId ? getTopicCompletionStats(topicId) : null;
@@ -90,6 +90,8 @@ export default function TopicLevels() {
             {config.levels.map((level) => {
               const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
               const lessonsCompleted = topicId ? getLessonProgress(topicId, level.id) : 0;
+              const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
+              const medal = getMedalForLevel(correctAnswers);
               const isLocked = status === 'locked';
               const isCompleted = status === 'completed';
               const lessonProgress = (lessonsCompleted / LESSONS_PER_LEVEL) * 100;
@@ -103,7 +105,13 @@ export default function TopicLevels() {
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${difficultyColors[level.difficulty]} opacity-10 group-hover:opacity-20 transition-opacity`} />
                   
-                  {isCompleted && (
+                  {isCompleted && medal && (
+                    <div className="absolute top-2 right-2 z-10 text-3xl">
+                      {medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : '🥉'}
+                    </div>
+                  )}
+                  
+                  {isCompleted && !medal && (
                     <div className="absolute top-2 right-2 z-10">
                       <CheckCircle2 className="w-6 h-6 text-green-500 fill-green-500/20" />
                     </div>
@@ -129,7 +137,7 @@ export default function TopicLevels() {
                           {lessonsCompleted}/{LESSONS_PER_LEVEL} lessons
                         </span>
                         <span className="font-semibold text-primary">
-                          {isCompleted ? '✓ Complete' : isLocked ? 'Locked' : lessonsCompleted === 0 ? 'Start' : 'In Progress'}
+                          {isCompleted ? (medal ? `${correctAnswers}/5 ✓` : 'Done') : isLocked ? 'Locked' : lessonsCompleted === 0 ? 'Start' : 'In Progress'}
                         </span>
                       </div>
                       <div className="h-2 w-full bg-muted rounded-full overflow-hidden">

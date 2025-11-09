@@ -13,6 +13,7 @@ export interface UserData {
   achievements: Achievement[];
   levelProgress: Record<string, string>; // levelId -> status (legacy)
   topicProgress?: Record<string, Record<number, number>>; // topicId -> levelNum -> completedLessons (0-5)
+  topicCorrectAnswers?: Record<string, Record<number, number>>; // topicId -> levelNum -> correctAnswers (0-5)
   streak?: number;
   lastLoginDate?: string;
 }
