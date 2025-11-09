@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { useTopics } from "@/hooks/useTopics";
+import { useAchievements } from "@/hooks/useAchievements";
 import { ACHIEVEMENT_DEFINITIONS } from "@/config/achievements";
 import { Mail, User, CheckCircle2, Circle, LogOut, Loader2, Trophy, Target, Zap, TrendingUp, Calendar, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -18,12 +19,20 @@ const Profile = () => {
   const { user: authUser, logout } = useAuth();
   const { userData, loading } = useUserProgress();
   const { topics } = useTopics();
+  const { checkAchievements } = useAchievements();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Check for any achievements that should be awarded when profile loads
+  useEffect(() => {
+    if (userData && !loading) {
+      checkAchievements();
+    }
+  }, [userData, loading]);
 
   const handleLogout = async () => {
     try {

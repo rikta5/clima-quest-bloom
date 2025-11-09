@@ -8,7 +8,7 @@ import confetti from 'canvas-confetti';
 
 export const useAchievements = () => {
   const { user } = useAuth();
-  const { userData } = useUserProgress();
+  const { userData, refetchUserData } = useUserProgress();
 
   const triggerAchievementConfetti = () => {
     confetti({
@@ -45,6 +45,9 @@ export const useAchievements = () => {
         description: achievement.description,
         duration: 5000,
       });
+
+      // Refetch user data to sync achievements
+      await refetchUserData();
 
       return true;
     } catch (error) {
