@@ -47,11 +47,16 @@ export default function ClimateLesson() {
   const [currentLesson, setCurrentLesson] = useState(1);
 
   useEffect(() => {
-    if (topicId && levelNum) {
-      const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
-      setCurrentLesson(Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL));
-    }
-    fetchClimateData();
+    const initializeLesson = async () => {
+      if (topicId && levelNum) {
+        const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
+        const nextLesson = Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL);
+        setCurrentLesson(nextLesson);
+        console.log(`Level ${levelNum}: ${lessonsCompleted} lessons completed, showing lesson ${nextLesson}`);
+      }
+      await fetchClimateData();
+    };
+    initializeLesson();
   }, [topicId, levelNum]);
 
   const getRandomYearField = (data: TempChangeData): { year: string; value: number } | null => {
@@ -337,6 +342,8 @@ Return ONLY valid JSON, nothing else.`;
     if (selectedAnswer === quiz?.correctIndex && topicId && levelNum) {
       const newLessonCount = await completeLessonInLevel(topicId, parseInt(levelNum), 2);
       
+      console.log(`Completed lesson, new count: ${newLessonCount}`);
+      
       if (newLessonCount !== null) {
         if (newLessonCount >= LESSONS_PER_LEVEL) {
           toast.success('Level completed! All 5 lessons done! +2 Eco Points');
@@ -344,18 +351,25 @@ Return ONLY valid JSON, nothing else.`;
           setTimeout(() => navigate(`/topic/${topicId}`), 2000);
           return;
         } else {
+          // Update the current lesson count to show progress
+          const nextLesson = newLessonCount + 1;
+          setCurrentLesson(nextLesson);
           toast.success(`Lesson ${newLessonCount}/${LESSONS_PER_LEVEL} completed! +2 Eco Points`);
-          setCurrentLesson(newLessonCount + 1);
+          console.log(`Set current lesson to: ${nextLesson}`);
         }
       }
     }
 
+    // Small delay to ensure state updates before loading new content
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     setLoading(true);
     setSelectedAnswer(null);
     setShowResult(false);
     setParagraph('');
     setQuiz(null);
-    fetchClimateData();
+    await fetchClimateData();
+    setLoading(false);
   };
 
   if (loading) {

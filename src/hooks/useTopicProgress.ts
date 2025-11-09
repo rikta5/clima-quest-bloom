@@ -48,11 +48,16 @@ export const useTopicProgress = () => {
   };
 
   const completeLessonInLevel = async (topicId: string, levelNum: number, pointsEarned: number = 2) => {
-    if (!user || !userData) return;
+    if (!user || !userData) {
+      console.log('No user or userData');
+      return null;
+    }
 
     try {
       const currentLessons = getLessonProgress(topicId, levelNum);
       const newLessons = Math.min(currentLessons + 1, LESSONS_PER_LEVEL);
+      
+      console.log(`Completing lesson: current=${currentLessons}, new=${newLessons}`);
       
       const userRef = doc(db, 'users', user.uid);
       
@@ -61,18 +66,23 @@ export const useTopicProgress = () => {
         ecoPoints: userData.ecoPoints + pointsEarned
       });
 
+      console.log('Firebase updated successfully');
+
       // If this completes the level, unlock next level
       if (newLessons >= LESSONS_PER_LEVEL) {
         const nextLevelNum = levelNum + 1;
         if (nextLevelNum <= 10) {
-          const nextLevelLessons = userData.topicProgress?.[topicId]?.[nextLevelNum] || 0;
-          if (nextLevelLessons === 0 || nextLevelLessons === undefined) {
+          const nextLevelLessons = userData.topicProgress?.[topicId]?.[nextLevelNum];
+          if (nextLevelLessons === undefined || nextLevelLessons === 0) {
             await updateDoc(userRef, {
               [`topicProgress.${topicId}.${nextLevelNum}`]: 0
             });
           }
         }
       }
+
+      // Force a small delay to ensure Firestore write completes
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       return newLessons;
     } catch (error) {
