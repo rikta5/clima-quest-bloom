@@ -148,7 +148,7 @@ const Index = () => {
                 views="45.2K"
                 fact="Discover how solar and wind power are transforming our world"
                 featured
-                onClick={() => handleReelClick("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", "The Future of Renewable Energy")}
+                onClick={() => handleReelClick("/videos/reel-1.mp4", "The Future of Renewable Energy")}
               />
             </div>
             
@@ -160,7 +160,7 @@ const Index = () => {
                 duration="0:45"
                 views="12.5K"
                 fact="Arctic sea ice is declining at a rate of 13% per decade"
-                onClick={() => handleReelClick("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", "Arctic Ice Melt Crisis")}
+                onClick={() => handleReelClick("/videos/reel-2.mp4", "Arctic Ice Melt Crisis")}
               />
               
               <ReelCard
@@ -170,7 +170,7 @@ const Index = () => {
                 duration="0:52"
                 views="15.2K"
                 fact="Ocean pH has dropped by 0.1 units since pre-industrial times"
-                onClick={() => handleReelClick("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", "Ocean Acidification")}
+                onClick={() => handleReelClick("/videos/reel-3.mp4", "Ocean Acidification")}
               />
             </div>
           </div>
