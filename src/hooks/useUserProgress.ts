@@ -135,11 +135,26 @@ export const useUserProgress = () => {
     }
   };
 
+  const refetchUserData = async () => {
+    if (!user) return;
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data() as UserData;
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Error refetching user data:', error);
+    }
+  };
+
   return {
     userData,
     loading,
     updateLevelProgress,
     addPoints,
-    addAchievement
+    addAchievement,
+    refetchUserData
   };
 };

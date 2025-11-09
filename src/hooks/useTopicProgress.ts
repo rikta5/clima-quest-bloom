@@ -7,7 +7,7 @@ const LESSONS_PER_LEVEL = 5;
 
 export const useTopicProgress = () => {
   const { user } = useAuth();
-  const { userData, loading } = useUserProgress();
+  const { userData, loading, refetchUserData } = useUserProgress();
 
   const getLessonProgress = (topicId: string, levelNum: number): number => {
     return userData?.topicProgress?.[topicId]?.[levelNum] || 0;
@@ -99,8 +99,8 @@ export const useTopicProgress = () => {
         }
       }
 
-      // Force a small delay to ensure Firestore write completes
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Refetch user data to update local state immediately
+      await refetchUserData();
 
       return { lessons: newLessons, correct: newCorrect };
     } catch (error) {
