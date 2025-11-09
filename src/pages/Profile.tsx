@@ -53,25 +53,28 @@ const Profile = () => {
     );
   }
 
-  // Calculate max possible points based on actual topics
-  const POINTS_PER_LEVEL = 10;
-  const LEVELS_PER_TOPIC = 10; // Each topic has 10 levels (7 core + 3 bonus)
+  // Calculate max possible points based on actual structure
+  // 5 lessons per level × 2 points per correct answer = 10 points per level
+  const LESSONS_PER_LEVEL = 5;
+  const POINTS_PER_CORRECT_ANSWER = 2;
+  const POINTS_PER_LEVEL = LESSONS_PER_LEVEL * POINTS_PER_CORRECT_ANSWER; // 10
+  const LEVELS_PER_TOPIC = 10;
   
-  // Calculate from topics if available, otherwise use known topic IDs from progress
+  // Calculate total possible points
   let maxPossiblePoints = 0;
   
   if (topics.length > 0) {
     // Use actual topics from Firestore
     maxPossiblePoints = topics.reduce((total, topic) => {
-      return total + (topic.levels?.length || LEVELS_PER_TOPIC) * POINTS_PER_LEVEL;
+      const levelCount = topic.levels?.length || LEVELS_PER_TOPIC;
+      return total + (levelCount * POINTS_PER_LEVEL);
     }, 0);
-  } else if (userData.topicProgress) {
-    // Fallback: calculate from topic progress data
-    const topicCount = Object.keys(userData.topicProgress).length;
-    maxPossiblePoints = topicCount * LEVELS_PER_TOPIC * POINTS_PER_LEVEL;
   } else {
-    // Default fallback for known topics
-    maxPossiblePoints = 2 * LEVELS_PER_TOPIC * POINTS_PER_LEVEL; // 2 known topics
+    // Fallback: use all known topics from userData or default to 2
+    const topicCount = userData.topicProgress 
+      ? Object.keys(userData.topicProgress).length 
+      : 2; // Default: e-waste and temperature-change
+    maxPossiblePoints = topicCount * LEVELS_PER_TOPIC * POINTS_PER_LEVEL;
   }
   
   const progressPercentage = maxPossiblePoints > 0 
