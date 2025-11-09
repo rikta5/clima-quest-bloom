@@ -279,7 +279,7 @@ Return ONLY valid JSON, nothing else.`;
         <div className="max-w-4xl mx-auto space-y-6">
           <Button
             variant="ghost"
-            onClick={() => navigate('/climate-levels')}
+            onClick={() => navigate('/levels')}
             className="gap-2 hover:gap-3 transition-all"
           >
             <ArrowLeft className="w-4 h-4" />
