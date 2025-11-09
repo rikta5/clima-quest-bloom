@@ -8,8 +8,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Levels from "./pages/Levels";
-import TopicMap from "./pages/TopicMap";
-import LevelDetail from "./pages/LevelDetail";
+import TopicLevels from "./pages/TopicLevels";
 import Profile from "./pages/Profile";
 import Reels from "./pages/Reels";
 import NotFound from "./pages/NotFound";
@@ -40,11 +39,10 @@ const App = () => (
             <Route path="/auth" element={<AuthRedirect><Auth /></AuthRedirect>} />
             <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/levels" element={<ProtectedRoute><Levels /></ProtectedRoute>} />
-            <Route path="/levels/topic/:topicId" element={<ProtectedRoute><TopicMap /></ProtectedRoute>} />
-            <Route path="/levels/:id" element={<ProtectedRoute><LevelDetail /></ProtectedRoute>} />
+            <Route path="/topic/:topicId" element={<ProtectedRoute><TopicLevels /></ProtectedRoute>} />
+            <Route path="/climate-lesson/:topicId/:levelNum" element={<ProtectedRoute><ClimateLesson /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/reels" element={<ProtectedRoute><Reels /></ProtectedRoute>} />
-            <Route path="/climate-lesson/:levelId" element={<ProtectedRoute><ClimateLesson /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

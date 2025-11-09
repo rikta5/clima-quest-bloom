@@ -34,7 +34,7 @@ interface TempChangeData {
 }
 
 export default function ClimateLesson() {
-  const { levelId } = useParams<{ levelId: string }>();
+  const { topicId, levelNum } = useParams<{ topicId: string; levelNum: string }>();
   const navigate = useNavigate();
   const [paragraph, setParagraph] = useState('');
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -45,7 +45,7 @@ export default function ClimateLesson() {
 
   useEffect(() => {
     fetchClimateData();
-  }, [levelId]);
+  }, [topicId, levelNum]);
 
   const getRandomYearField = (data: TempChangeData): { year: string; value: number } | null => {
     const yearFields = Object.keys(data).filter(key => key.startsWith('Y') && key.length === 5);
@@ -62,7 +62,7 @@ export default function ClimateLesson() {
     try {
       setLoading(true);
       
-      if (levelId === 'e-waste') {
+      if (topicId === 'e-waste') {
         setTopicTitle('E-Waste Recycling');
         const q = query(collection(db, 'electronic-waste-recycling-rate'), limit(10));
         const querySnapshot = await getDocs(q);
@@ -101,7 +101,7 @@ export default function ClimateLesson() {
           toast.error('No e-waste data available');
           setLoading(false);
         }
-      } else if (levelId === 'temperature-change') {
+      } else if (topicId === 'temperature-change') {
         setTopicTitle('Temperature Change');
         const q = query(collection(db, 'temperature_change'), limit(10));
         const querySnapshot = await getDocs(q);
@@ -352,16 +352,16 @@ Return ONLY valid JSON, nothing else.`;
         <div className="max-w-4xl mx-auto space-y-6">
           <Button
             variant="ghost"
-            onClick={() => navigate('/levels')}
+            onClick={() => navigate(`/topic/${topicId}`)}
             className="gap-2 hover:gap-3 transition-all"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Topics
+            Back to Levels
           </Button>
 
           <Card className="overflow-hidden border-2 shadow-xl">
             <div className={`h-2 bg-gradient-to-r ${
-              levelId === 'e-waste' 
+              topicId === 'e-waste' 
                 ? 'from-green-500 to-emerald-600' 
                 : 'from-orange-500 to-red-600'
             }`} />

@@ -44,7 +44,7 @@ const Levels = () => {
               <Card
                 key={topic.id}
                 className="group cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden border-2 hover:border-primary"
-                onClick={() => navigate(`/climate-lesson/${topic.id}`)}
+                onClick={() => navigate(`/topic/${topic.id}`)}
               >
                 <div className={`h-2 bg-gradient-to-r ${topic.color}`} />
                 <CardHeader>
