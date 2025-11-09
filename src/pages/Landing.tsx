@@ -7,6 +7,7 @@ import birdLogo from "@/assets/bird-logo.png";
 
 const Landing = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -111,7 +112,12 @@ const Landing = () => {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="text-lg h-14 px-8 hover:bg-primary/5">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg h-14 px-8 hover:bg-primary/5"
+                  onClick={() => setShowDemo(true)}
+                >
                   Watch Demo
                 </Button>
               </div>
@@ -161,6 +167,27 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+
+      {/* VIMEO MODAL */}
+      {showDemo && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[999]">
+          <div className="relative w-[90vw] max-w-4xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+            <iframe
+              src="https://player.vimeo.com/video/1135122047?autoplay=1"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
+            <button
+              onClick={() => setShowDemo(false)}
+              className="absolute -top-12 right-0 text-white text-lg px-4 py-2"
+            >
+              Close ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* How It Works Section */}
       <section className="relative z-10 px-6 py-20">
