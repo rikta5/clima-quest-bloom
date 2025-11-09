@@ -53,7 +53,15 @@ const Profile = () => {
     );
   }
 
-  const progressPercentage = (userData.ecoPoints / userData.maxPoints) * 100;
+  // Calculate max possible points based on actual topics
+  const POINTS_PER_LEVEL = 10;
+  const maxPossiblePoints = topics.reduce((total, topic) => {
+    return total + (topic.levels?.length || 0) * POINTS_PER_LEVEL;
+  }, 0);
+  
+  const progressPercentage = maxPossiblePoints > 0 
+    ? (userData.ecoPoints / maxPossiblePoints) * 100 
+    : 0;
   const avatarInitials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   
   // Calculate total completed lessons and levels from topicProgress
@@ -219,7 +227,7 @@ const Profile = () => {
                   <h3 className="text-2xl font-bold text-foreground">Learning Progress</h3>
                 </div>
                 <Badge variant="default" className="text-lg px-6 py-2 bg-gradient-to-r from-primary to-accent shadow-eco">
-                  {userData.ecoPoints} / {userData.maxPoints}
+                  {userData.ecoPoints} / {maxPossiblePoints}
                 </Badge>
               </div>
               <div className="space-y-3">
@@ -229,7 +237,7 @@ const Profile = () => {
                     {Math.round(progressPercentage)}% Complete
                   </p>
                   <p className="text-muted-foreground font-semibold">
-                    {userData.maxPoints - userData.ecoPoints} points to go!
+                    {Math.max(0, maxPossiblePoints - userData.ecoPoints)} points to go!
                   </p>
                 </div>
               </div>
