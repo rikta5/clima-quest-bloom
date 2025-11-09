@@ -49,7 +49,7 @@ const difficultyColors = {
 export default function TopicLevels() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
-  const { getTopicLevelStatus, getTopicCompletionStats } = useTopicProgress();
+  const { getTopicLevelStatus, getLessonProgress, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
   
   const config = topicId ? levelConfig[topicId as keyof typeof levelConfig] : null;
   const stats = topicId ? getTopicCompletionStats(topicId) : null;
@@ -82,15 +82,17 @@ export default function TopicLevels() {
               {config.title}
             </h1>
             <p className="text-muted-foreground">
-              {stats ? `${stats.completed} of ${stats.total} levels completed (${Math.round(stats.percentage)}%)` : 'Complete all 10 levels to master this topic'}
+              {stats ? `${stats.completed} of ${stats.total} lessons completed • ${stats.levels}/10 levels done` : 'Complete all 50 lessons across 10 levels'}
             </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {config.levels.map((level) => {
               const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+              const lessonsCompleted = topicId ? getLessonProgress(topicId, level.id) : 0;
               const isLocked = status === 'locked';
               const isCompleted = status === 'completed';
+              const lessonProgress = (lessonsCompleted / LESSONS_PER_LEVEL) * 100;
 
               return (
                 <button
@@ -121,11 +123,21 @@ export default function TopicLevels() {
                       {level.title}
                     </h3>
                     
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
-                        <div className={`h-full bg-primary transition-all duration-500 ${isCompleted ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground font-medium">
+                          {lessonsCompleted}/{LESSONS_PER_LEVEL} lessons
+                        </span>
+                        <span className="font-semibold text-primary">
+                          {isCompleted ? '✓ Complete' : isLocked ? 'Locked' : lessonsCompleted === 0 ? 'Start' : 'In Progress'}
+                        </span>
                       </div>
-                      <span className="text-xs font-semibold">{isCompleted ? 'Done' : isLocked ? 'Locked' : 'Start'}</span>
+                      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                          style={{ width: `${lessonProgress}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </button>

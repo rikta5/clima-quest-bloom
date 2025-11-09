@@ -1,33 +1,39 @@
 import { NodeCircle } from "./NodeCircle";
 import { Play, Sparkles, Lock, CheckCircle2, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useLevelProgress } from "@/hooks/useLevelProgress";
-import { useTopics } from "@/hooks/useTopics";
+import { useTopicProgress } from "@/hooks/useTopicProgress";
 
 export const MiniLevelPath = () => {
   const navigate = useNavigate();
-  const { getLevelStatus } = useLevelProgress();
-  const { topics } = useTopics();
+  const { getTopicLevelStatus, getLessonProgress, LESSONS_PER_LEVEL } = useTopicProgress();
 
-  // Get first topic and first 5 levels
-  const firstTopic = topics[0];
-  const levels = firstTopic?.levels.slice(0, 5) || [];
+  // Show e-waste topic first 5 levels
+  const topicId = 'e-waste';
+  const topicName = 'E-Waste Recycling';
+  
+  const levels = [
+    { id: 1, title: 'Introduction to E-Waste' },
+    { id: 2, title: 'Understanding Recycling Rates' },
+    { id: 3, title: 'Global E-Waste Patterns' },
+    { id: 4, title: 'Environmental Impact' },
+    { id: 5, title: 'Economic Benefits' },
+  ];
   
   // Get levels with their dynamic status from Firebase
   const levelsWithStatus = levels.map(level => ({
     ...level,
-    status: getLevelStatus(level.id)
+    status: getTopicLevelStatus(topicId, level.id),
+    lessonsCompleted: getLessonProgress(topicId, level.id)
   }));
   
-  // Find the first unlocked level as the current active level
-  const currentLevelIndex = levelsWithStatus.findIndex(level => level.status === "unlocked");
+  // Find the first unlocked/in-progress level as the current active level
+  const currentLevelIndex = levelsWithStatus.findIndex(level => 
+    level.status === "unlocked" || (level.status === "completed" && level.lessonsCompleted < LESSONS_PER_LEVEL)
+  );
   const currentLevel = currentLevelIndex >= 0 ? levelsWithStatus[currentLevelIndex] : levelsWithStatus[0];
   
   // Count completed levels
   const completedCount = levelsWithStatus.filter(level => level.status === "completed").length;
-  
-  // Use the first topic
-  const currentTopic = firstTopic;
 
   const getNodeStatus = (index: number) => {
     const level = levelsWithStatus[index];
@@ -43,14 +49,14 @@ export const MiniLevelPath = () => {
         <div className="flex items-center justify-center gap-2">
           <Trophy className="w-5 h-5 text-primary" />
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            {currentTopic?.name || "Loading..."}
+            {topicName}
           </span>
         </div>
         <h3 className="text-xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
           {currentLevel?.title || "Start Your Journey"}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {currentLevel ? `Level ${currentLevel.id} • ` : ''}{completedCount} of {levels.length} completed
+          {currentLevel ? `Level ${currentLevel.id} • ${currentLevel.lessonsCompleted}/${LESSONS_PER_LEVEL} lessons • ` : ''}{completedCount} of {levels.length} levels completed
         </p>
       </div>
 
@@ -81,7 +87,7 @@ export const MiniLevelPath = () => {
                   <div key={level.id} className="relative flex flex-col items-center gap-3 group">
                     {isActive ? (
                       <button
-                        onClick={() => navigate("/home")}
+                        onClick={() => navigate(`/climate-lesson/${topicId}/${level.id}`)}
                         className="relative w-20 h-20 bg-gradient-to-br from-primary to-accent text-primary-foreground rounded-full shadow-eco-lg flex items-center justify-center font-bold text-lg hover:scale-110 transition-all duration-300"
                       >
                         <div className="relative flex flex-col items-center">

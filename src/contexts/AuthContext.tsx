@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     const today = new Date().toISOString().split('T')[0];
     
-    // Create user profile in Firestore with first level of each topic unlocked
+    // Create user profile in Firestore with first level of each topic unlocked (0 lessons completed)
     await setDoc(doc(db, 'users', userCredential.user.uid), {
       name,
       email,
@@ -58,10 +58,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
       topicProgress: {
         'e-waste': {
-          1: 'unlocked'
+          1: 0 // 0 lessons completed, but level is accessible
         },
         'temperature-change': {
-          1: 'unlocked'
+          1: 0 // 0 lessons completed, but level is accessible
         }
       },
       streak: 1,

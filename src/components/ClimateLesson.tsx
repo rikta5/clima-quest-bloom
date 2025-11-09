@@ -37,15 +37,20 @@ interface TempChangeData {
 export default function ClimateLesson() {
   const { topicId, levelNum } = useParams<{ topicId: string; levelNum: string }>();
   const navigate = useNavigate();
-  const { completeTopicLevel } = useTopicProgress();
+  const { completeLessonInLevel, getLessonProgress, LESSONS_PER_LEVEL } = useTopicProgress();
   const [paragraph, setParagraph] = useState('');
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [topicTitle, setTopicTitle] = useState('');
+  const [currentLesson, setCurrentLesson] = useState(1);
 
   useEffect(() => {
+    if (topicId && levelNum) {
+      const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
+      setCurrentLesson(Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL));
+    }
     fetchClimateData();
   }, [topicId, levelNum]);
 
@@ -328,10 +333,21 @@ Return ONLY valid JSON, nothing else.`;
   };
 
   const handleNextLesson = async () => {
-    // If user answered correctly, mark level as complete
+    // If user answered correctly, mark lesson as complete
     if (selectedAnswer === quiz?.correctIndex && topicId && levelNum) {
-      await completeTopicLevel(topicId, parseInt(levelNum), 10);
-      toast.success('Level completed! +10 Eco Points');
+      const newLessonCount = await completeLessonInLevel(topicId, parseInt(levelNum), 2);
+      
+      if (newLessonCount !== null) {
+        if (newLessonCount >= LESSONS_PER_LEVEL) {
+          toast.success('Level completed! All 5 lessons done! +2 Eco Points');
+          // Navigate back to topic levels page after completing all lessons
+          setTimeout(() => navigate(`/topic/${topicId}`), 2000);
+          return;
+        } else {
+          toast.success(`Lesson ${newLessonCount}/${LESSONS_PER_LEVEL} completed! +2 Eco Points`);
+          setCurrentLesson(newLessonCount + 1);
+        }
+      }
     }
 
     setLoading(true);
@@ -374,10 +390,22 @@ Return ONLY valid JSON, nothing else.`;
                 : 'from-orange-500 to-red-600'
             }`} />
             <CardHeader>
-              <CardTitle className="text-3xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center gap-3">
-                <Sparkles className="w-8 h-8 text-primary" />
-                {topicTitle}
-              </CardTitle>
+              <div className="flex items-center justify-between mb-2">
+                <CardTitle className="text-3xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent flex items-center gap-3">
+                  <Sparkles className="w-8 h-8 text-primary" />
+                  {topicTitle}
+                </CardTitle>
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground">Level {levelNum}</p>
+                  <p className="text-lg font-bold text-primary">Lesson {currentLesson}/5</p>
+                </div>
+              </div>
+              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                  style={{ width: `${((currentLesson - 1) / LESSONS_PER_LEVEL) * 100}%` }}
+                />
+              </div>
             </CardHeader>
             <CardContent className="space-y-8">
               <div className="space-y-4">

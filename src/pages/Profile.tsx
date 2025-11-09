@@ -56,7 +56,8 @@ const Profile = () => {
   const progressPercentage = (userData.ecoPoints / userData.maxPoints) * 100;
   const avatarInitials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   
-  // Calculate total completed levels from topicProgress
+  // Calculate total completed lessons and levels from topicProgress
+  let totalCompletedLessons = 0;
   let totalCompletedLevels = 0;
   let completedTopicsCount = 0;
 
@@ -65,11 +66,19 @@ const Profile = () => {
     
     topicIds.forEach(topicId => {
       const topicData = userData.topicProgress![topicId];
-      const completedInTopic = Object.values(topicData).filter(status => status === 'completed').length;
-      totalCompletedLevels += completedInTopic;
+      let levelsInTopic = 0;
       
-      // A topic is completed if all 10 levels are completed
-      if (completedInTopic === 10) {
+      Object.values(topicData).forEach(lessons => {
+        const lessonCount = typeof lessons === 'number' ? lessons : 0;
+        totalCompletedLessons += lessonCount;
+        if (lessonCount >= 5) {
+          levelsInTopic++;
+          totalCompletedLevels++;
+        }
+      });
+      
+      // A topic is completed if all 10 levels are completed (50 lessons)
+      if (levelsInTopic === 10) {
         completedTopicsCount++;
       }
     });
@@ -285,12 +294,20 @@ const Profile = () => {
                   { id: 'temperature-change', name: 'Temperature Change' }
                 ].map((topic, index) => {
                   const topicData = userData.topicProgress?.[topic.id];
-                  const completedLevels = topicData 
-                    ? Object.values(topicData).filter(status => status === 'completed').length 
-                    : 0;
-                  const totalLevels = 10;
-                  const isTopicCompleted = completedLevels === totalLevels;
-                  const topicProgress = (completedLevels / totalLevels) * 100;
+                  let completedLessons = 0;
+                  let completedLevels = 0;
+                  
+                  if (topicData) {
+                    Object.values(topicData).forEach(lessons => {
+                      const lessonCount = typeof lessons === 'number' ? lessons : 0;
+                      completedLessons += lessonCount;
+                      if (lessonCount >= 5) completedLevels++;
+                    });
+                  }
+                  
+                  const totalLessons = 50; // 10 levels * 5 lessons
+                  const isTopicCompleted = completedLevels === 10;
+                  const topicProgress = (completedLessons / totalLessons) * 100;
                   
                   return (
                     <div 
@@ -324,7 +341,7 @@ const Profile = () => {
                               {topic.name}
                             </span>
                             <p className="text-sm text-muted-foreground mt-0.5">
-                              {completedLevels} of {totalLevels} levels completed
+                              {completedLessons}/{totalLessons} lessons • {completedLevels}/10 levels
                             </p>
                           </div>
                           <Badge variant={isTopicCompleted ? "default" : "outline"} className={isTopicCompleted ? "bg-gradient-to-r from-accent to-primary" : ""}>
