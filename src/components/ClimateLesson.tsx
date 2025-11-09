@@ -66,9 +66,13 @@ export default function ClimateLesson() {
     if (!progressLoading && userData && topicId && levelNum && !initialized) {
       const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
       const nextLesson = Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL);
+      console.log('=== INITIALIZING LESSON ===');
+      console.log('Topic:', topicId, 'Level:', levelNum);
+      console.log('Lessons completed:', lessonsCompleted);
+      console.log('Next lesson to show:', nextLesson);
+      console.log('userData.topicProgress:', userData?.topicProgress);
       setCurrentLesson(nextLesson);
       setInitialized(true);
-      console.log(`Level ${levelNum}: ${lessonsCompleted} lessons completed, showing lesson ${nextLesson}`);
     }
   }, [progressLoading, userData, topicId, levelNum, initialized]);
 
@@ -362,12 +366,17 @@ Return ONLY valid JSON, nothing else.`;
 
     // Always complete the lesson (regardless of correct/incorrect)
     const isCorrect = selectedAnswer === quiz?.correctIndex;
+    console.log('=== COMPLETING LESSON ===');
+    console.log('Is correct:', isCorrect);
+    console.log('Current lesson before:', currentLesson);
+    
     const result = await completeLessonInLevel(topicId, parseInt(levelNum), isCorrect);
     
-    console.log(`Completed lesson, result:`, result);
+    console.log('Completion result:', result);
     
     if (result !== null) {
       const { lessons: newLessonCount, correct: correctCount } = result;
+      console.log('New lesson count:', newLessonCount, 'Correct count:', correctCount);
       
       if (newLessonCount >= LESSONS_PER_LEVEL) {
         // Level completed! Show medal
@@ -385,10 +394,10 @@ Return ONLY valid JSON, nothing else.`;
       } else {
         // Update the current lesson count to show progress
         const nextLesson = newLessonCount + 1;
+        console.log('Setting current lesson to:', nextLesson);
         setCurrentLesson(nextLesson);
         const pointsText = isCorrect ? '+2 Eco Points' : '+1 Eco Point';
         toast.success(`Lesson ${newLessonCount}/${LESSONS_PER_LEVEL} completed! ${pointsText}`);
-        console.log(`Set current lesson to: ${nextLesson}`);
       }
     }
 

@@ -10,10 +10,9 @@ export const useTopicProgress = () => {
   const { userData, loading } = useUserProgress();
 
   const getLessonProgress = (topicId: string, levelNum: number): number => {
-    if (!userData?.topicProgress?.[topicId]?.[levelNum]) {
-      return 0;
-    }
-    return userData.topicProgress[topicId][levelNum] || 0;
+    const progress = userData?.topicProgress?.[topicId]?.[levelNum] || 0;
+    console.log(`getLessonProgress(${topicId}, ${levelNum}):`, progress, 'userData:', userData?.topicProgress?.[topicId]);
+    return progress;
   };
 
   const getCorrectAnswers = (topicId: string, levelNum: number): number => {
