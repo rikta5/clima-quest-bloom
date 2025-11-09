@@ -279,7 +279,7 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-10 px-6 py-20 bg-card/50 backdrop-blur-sm">
+      <section className="relative z-10 px-6 py-20">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground">
@@ -290,21 +290,41 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 gap-8">
             {features.map((feature, index) => (
-              <Card 
+              <div
                 key={feature.title}
-                className={`p-6 hover:shadow-eco-lg transition-all duration-500 hover:-translate-y-2 cursor-pointer border-2 hover:border-primary/50 ${
+                className={`group relative overflow-hidden rounded-3xl transition-all duration-700 ${
                   isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                style={{ transitionDelay: `${index * 150}ms` }}
               >
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-eco`}>
-                  <feature.icon className="w-7 h-7 text-primary-foreground" />
+                {/* Gradient Background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-10 group-hover:opacity-20 transition-opacity duration-500`} />
+                
+                {/* Animated Border */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ padding: '2px' }}>
+                  <div className="w-full h-full bg-background rounded-3xl" />
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-foreground">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </Card>
+
+                {/* Content */}
+                <div className="relative p-8 space-y-4 bg-card/80 backdrop-blur-sm rounded-3xl border border-border/50 group-hover:border-transparent transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-1">
+                  <div className="flex items-start gap-4">
+                    <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                      <feature.icon className="w-8 h-8 text-primary-foreground" />
+                      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500`} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
+                        {feature.title}
+                      </h3>
+                      <p className="text-muted-foreground text-base leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
