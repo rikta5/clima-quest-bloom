@@ -44,44 +44,31 @@ export default function ClimateLesson() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [topicTitle, setTopicTitle] = useState('');
-  const [currentLesson, setCurrentLesson] = useState(1);
   const [showMedal, setShowMedal] = useState(false);
   const [earnedMedal, setEarnedMedal] = useState<'gold' | 'silver' | 'bronze' | null>(null);
-  const [initialized, setInitialized] = useState(false);
+  
+  // Always derive current lesson from Firebase data - single source of truth
+  const currentLesson = progressLoading || !userData || !topicId || !levelNum
+    ? 1 
+    : Math.min(getLessonProgress(topicId, parseInt(levelNum)) + 1, LESSONS_PER_LEVEL);
 
-  // Reset initialization when navigating to a different level
+  // Reset state when navigating to different topic/level
   useEffect(() => {
-    setInitialized(false);
-    setLoading(true);
     setSelectedAnswer(null);
     setShowResult(false);
     setParagraph('');
     setQuiz(null);
     setShowMedal(false);
     setEarnedMedal(null);
+    setLoading(true);
   }, [topicId, levelNum]);
 
-  // Initialize lesson progress when userData is loaded
+  // Fetch lesson data when ready and lesson changes
   useEffect(() => {
-    if (!progressLoading && userData && topicId && levelNum && !initialized) {
-      const lessonsCompleted = getLessonProgress(topicId, parseInt(levelNum));
-      const nextLesson = Math.min(lessonsCompleted + 1, LESSONS_PER_LEVEL);
-      console.log('=== INITIALIZING LESSON ===');
-      console.log('Topic:', topicId, 'Level:', levelNum);
-      console.log('Lessons completed:', lessonsCompleted);
-      console.log('Next lesson to show:', nextLesson);
-      console.log('userData.topicProgress:', userData?.topicProgress);
-      setCurrentLesson(nextLesson);
-      setInitialized(true);
-    }
-  }, [progressLoading, userData, topicId, levelNum, initialized]);
-
-  // Fetch lesson data when initialized
-  useEffect(() => {
-    if (initialized) {
+    if (!progressLoading && userData && topicId && levelNum && !showMedal) {
       fetchClimateData();
     }
-  }, [initialized]);
+  }, [currentLesson, progressLoading, userData, topicId, levelNum]);
 
   const getRandomYearField = (data: TempChangeData): { year: string; value: number } | null => {
     const yearFields = Object.keys(data).filter(key => key.startsWith('Y') && key.length === 5);
@@ -364,19 +351,12 @@ Return ONLY valid JSON, nothing else.`;
   const handleNextLesson = async () => {
     if (!topicId || !levelNum) return;
 
-    // Always complete the lesson (regardless of correct/incorrect)
+    // Complete the lesson (correct/incorrect based on answer)
     const isCorrect = selectedAnswer === quiz?.correctIndex;
-    console.log('=== COMPLETING LESSON ===');
-    console.log('Is correct:', isCorrect);
-    console.log('Current lesson before:', currentLesson);
-    
     const result = await completeLessonInLevel(topicId, parseInt(levelNum), isCorrect);
-    
-    console.log('Completion result:', result);
     
     if (result !== null) {
       const { lessons: newLessonCount, correct: correctCount } = result;
-      console.log('New lesson count:', newLessonCount, 'Correct count:', correctCount);
       
       if (newLessonCount >= LESSONS_PER_LEVEL) {
         // Level completed! Show medal
@@ -392,35 +372,25 @@ Return ONLY valid JSON, nothing else.`;
         setTimeout(() => navigate(`/topic/${topicId}`), 3000);
         return;
       } else {
-        // Update the current lesson count to show progress
-        const nextLesson = newLessonCount + 1;
-        console.log('Setting current lesson to:', nextLesson);
-        setCurrentLesson(nextLesson);
+        // Show progress
         const pointsText = isCorrect ? '+2 Eco Points' : '+1 Eco Point';
         toast.success(`Lesson ${newLessonCount}/${LESSONS_PER_LEVEL} completed! ${pointsText}`);
       }
     }
 
-    // Small delay to ensure state updates before loading new content
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    setLoading(true);
+    // Reset quiz state - useEffect will handle fetching new data based on updated Firebase data
     setSelectedAnswer(null);
     setShowResult(false);
-    setParagraph('');
-    setQuiz(null);
-    await fetchClimateData();
-    setLoading(false);
   };
 
-  if (loading || progressLoading || !initialized) {
+  if (loading || progressLoading) {
     return (
       <MainLayout>
         <div className="flex flex-col items-center justify-center min-h-[70vh] gap-4">
           <Sparkles className="w-12 h-12 text-primary animate-pulse" />
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <span className="text-xl text-muted-foreground">
-            {!initialized ? 'Loading your progress...' : 'Generating AI-powered lesson...'}
+            Loading lesson...
           </span>
         </div>
       </MainLayout>
