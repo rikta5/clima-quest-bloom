@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Leaf, Target, TrendingUp, Users, Award, Zap, ArrowRight, Sparkles } from "lucide-react";
+import { Leaf, Target, TrendingUp, Users, Award, Zap, ArrowRight, Sparkles, Play, BookOpen, Trophy, BarChart3 } from "lucide-react";
 import birdLogo from "@/assets/bird-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -166,6 +166,114 @@ const Landing = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="relative z-10 px-6 py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+              How It Works
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Your journey to becoming a climate champion in four simple steps
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-8 relative">
+            {/* Connecting Lines */}
+            <div className="hidden md:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/20 via-accent/40 to-primary/20" />
+            
+            {/* Step 1 */}
+            <div className={`relative transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+              <Card className="p-6 hover:shadow-eco-lg transition-all duration-500 hover:-translate-y-2 border-2 hover:border-primary/50 bg-card relative z-10">
+                <div className="relative">
+                  <div className="absolute -top-3 -left-3 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground shadow-eco animate-pulse">
+                    1
+                  </div>
+                  <div className="w-16 h-16 mx-auto mb-4 mt-6 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-eco">
+                    <Play className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-center text-foreground">Start Your Journey</h3>
+                  <p className="text-muted-foreground text-center text-sm">
+                    Sign up for free and choose your first climate topic to explore
+                  </p>
+                </div>
+              </Card>
+              <div className="hidden md:block absolute -right-4 top-24 text-accent animate-bounce-slow">
+                <ArrowRight className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className={`relative transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+              <Card className="p-6 hover:shadow-eco-lg transition-all duration-500 hover:-translate-y-2 border-2 hover:border-accent/50 bg-card relative z-10">
+                <div className="relative">
+                  <div className="absolute -top-3 -left-3 w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center text-2xl font-bold text-primary-foreground shadow-eco animate-pulse delay-100">
+                    2
+                  </div>
+                  <div className="w-16 h-16 mx-auto mb-4 mt-6 rounded-2xl bg-gradient-to-br from-accent to-primary flex items-center justify-center shadow-eco">
+                    <BookOpen className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-center text-foreground">Learn & Play</h3>
+                  <p className="text-muted-foreground text-center text-sm">
+                    Complete interactive lessons, watch reels, and take on challenges
+                  </p>
+                </div>
+              </Card>
+              <div className="hidden md:block absolute -right-4 top-24 text-primary animate-bounce-slow delay-100">
+                <ArrowRight className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className={`relative transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+              <Card className="p-6 hover:shadow-eco-lg transition-all duration-500 hover:-translate-y-2 border-2 hover:border-primary/50 bg-card relative z-10">
+                <div className="relative">
+                  <div className="absolute -top-3 -left-3 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-2xl font-bold text-primary-foreground shadow-eco animate-pulse delay-200">
+                    3
+                  </div>
+                  <div className="w-16 h-16 mx-auto mb-4 mt-6 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-eco">
+                    <Trophy className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-center text-foreground">Earn Rewards</h3>
+                  <p className="text-muted-foreground text-center text-sm">
+                    Collect eco-points, unlock badges, and build your streak
+                  </p>
+                </div>
+              </Card>
+              <div className="hidden md:block absolute -right-4 top-24 text-accent animate-bounce-slow delay-200">
+                <ArrowRight className="w-6 h-6" />
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className={`relative transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+              <Card className="p-6 hover:shadow-eco-lg transition-all duration-500 hover:-translate-y-2 border-2 hover:border-accent/50 bg-card relative z-10">
+                <div className="relative">
+                  <div className="absolute -top-3 -left-3 w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center text-2xl font-bold text-primary-foreground shadow-eco animate-pulse delay-300">
+                    4
+                  </div>
+                  <div className="w-16 h-16 mx-auto mb-4 mt-6 rounded-2xl bg-gradient-to-br from-accent to-primary flex items-center justify-center shadow-eco">
+                    <BarChart3 className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-center text-foreground">Track Progress</h3>
+                  <p className="text-muted-foreground text-center text-sm">
+                    Monitor your learning journey and see your climate impact grow
+                  </p>
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Visual Flow Indicator - Mobile */}
+          <div className="md:hidden flex justify-center mt-8 space-x-2">
+            <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+            <div className="w-3 h-3 rounded-full bg-accent animate-pulse delay-100" />
+            <div className="w-3 h-3 rounded-full bg-primary animate-pulse delay-200" />
+            <div className="w-3 h-3 rounded-full bg-accent animate-pulse delay-300" />
           </div>
         </div>
       </section>
