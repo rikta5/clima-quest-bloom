@@ -17,8 +17,13 @@ interface Quiz {
 
 interface EWasteData {
   Entity: string;
+  Code?: string;
   Year: number;
-  EN_EWT_RCYR: number;
+  '12'?: {
+    '5'?: number | string;
+    [key: string]: any;
+  };
+  [key: string]: any;
 }
 
 interface TempChangeData {
@@ -65,14 +70,29 @@ export default function ClimateLesson() {
         if (!querySnapshot.empty) {
           const docs = querySnapshot.docs.filter(doc => {
             const data = doc.data();
-            return data.Entity && data.Year && typeof data.EN_EWT_RCYR === 'number';
+            console.log('E-Waste Raw Document:', JSON.stringify(data, null, 2));
+            
+            // Extract recycling rate from nested structure
+            let recyclingRate = null;
+            if (data['12']) {
+              // Try to find the rate in the nested object
+              const field12 = data['12'];
+              if (field12['5'] !== undefined) {
+                recyclingRate = typeof field12['5'] === 'string' ? parseFloat(field12['5']) : field12['5'];
+              }
+            }
+            
+            console.log('Extracted Recycling Rate:', recyclingRate);
+            return data.Entity && data.Year && recyclingRate !== null && !isNaN(recyclingRate);
           });
           
           if (docs.length > 0) {
             const randomDoc = docs[Math.floor(Math.random() * docs.length)];
             const data = randomDoc.data() as EWasteData;
+            console.log('Selected E-Waste Document:', JSON.stringify(data, null, 2));
             await generateEWasteContent(data);
           } else {
+            console.error('No valid e-waste data found after filtering');
             toast.error('No valid e-waste data found');
             setLoading(false);
           }
@@ -88,14 +108,19 @@ export default function ClimateLesson() {
         if (!querySnapshot.empty) {
           const docs = querySnapshot.docs.filter(doc => {
             const data = doc.data();
-            return data.Area && getRandomYearField(data as TempChangeData) !== null;
+            console.log('Temperature Change Raw Document:', JSON.stringify(data, null, 2));
+            const yearData = getRandomYearField(data as TempChangeData);
+            console.log('Extracted Year Data:', yearData);
+            return data.Area && yearData !== null;
           });
           
           if (docs.length > 0) {
             const randomDoc = docs[Math.floor(Math.random() * docs.length)];
             const data = randomDoc.data() as TempChangeData;
+            console.log('Selected Temperature Document:', JSON.stringify(data, null, 2));
             await generateTempChangeContent(data);
           } else {
+            console.error('No valid temperature data found after filtering');
             toast.error('No valid temperature data found');
             setLoading(false);
           }
@@ -113,9 +138,21 @@ export default function ClimateLesson() {
 
   const generateEWasteContent = async (data: EWasteData) => {
     try {
+      // Extract recycling rate from nested structure
+      let recyclingRate = 0;
+      if (data['12'] && data['12']['5'] !== undefined) {
+        recyclingRate = typeof data['12']['5'] === 'string' ? parseFloat(data['12']['5']) : data['12']['5'];
+      }
+      
+      console.log('Generating content for:', {
+        country: data.Entity,
+        year: data.Year,
+        recyclingRate: recyclingRate
+      });
+
       const paragraphPrompt = `Write a 150-word educational paragraph for high school students about e-waste recycling in ${data.Entity} in ${data.Year}.
-Use this fact: 'In ${data.Year}, ${data.Entity} recycled ${data.EN_EWT_RCYR}% of its electronic waste.'
-Explain why ${data.EN_EWT_RCYR > 50 ? 'such a high' : 'this'} recycling rate matters, what benefits it brings to the environment and economy, and what lessons other countries could learn from ${data.Entity}'s example.
+Use this fact: 'In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of its electronic waste.'
+Explain why ${recyclingRate > 50 ? 'such a high' : 'this'} recycling rate matters, what benefits it brings to the environment and economy, and what lessons other countries could learn from ${data.Entity}'s example.
 Make it engaging, informative, and easy to understand.`;
 
       const paragraphResult = await geminiModel.generateContent(paragraphPrompt);
@@ -128,7 +165,7 @@ Make it engaging, informative, and easy to understand.`;
 Generate ONE multiple-choice question in this EXACT JSON format (no other text):
 {
   "question": "What percentage of electronic waste did ${data.Entity} recycle in ${data.Year}?",
-  "options": ["${Math.max(0, data.EN_EWT_RCYR - 20)}%", "${Math.max(0, data.EN_EWT_RCYR - 10)}%", "${data.EN_EWT_RCYR}%", "${data.EN_EWT_RCYR + 10}%"],
+  "options": ["${Math.max(0, recyclingRate - 20)}%", "${Math.max(0, recyclingRate - 10)}%", "${recyclingRate}%", "${recyclingRate + 10}%"],
   "correctIndex": 2
 }
 
