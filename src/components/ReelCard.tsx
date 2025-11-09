@@ -41,8 +41,8 @@ export const ReelCard = ({
         
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
-        <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-          <Play className="w-8 h-8 text-primary fill-primary ml-1" />
+        <button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white/90 group-hover:scale-110 transition-all shadow-lg">
+          <Play className="w-8 h-8 text-white group-hover:text-primary fill-white group-hover:fill-primary ml-1 transition-colors" />
         </button>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">

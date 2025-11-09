@@ -37,7 +37,14 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/home" className="flex items-center gap-2 group">
+            <a 
+              href="/home" 
+              className="flex items-center gap-2 group"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = '/home';
+              }}
+            >
               <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
                 <img 
                   src={mascotLogo} 
@@ -48,7 +55,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ClimaQuest
               </span>
-            </Link>
+            </a>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1">
