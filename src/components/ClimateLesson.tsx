@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { geminiModel } from '../config/gemini';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Loader2, ArrowLeft, Sparkles, Award } from 'lucide-react';
@@ -188,8 +188,12 @@ Use this fact: 'In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of it
 Explain why ${recyclingRate > 50 ? 'such a high' : 'this'} recycling rate matters, what benefits it brings to the environment and economy, and what lessons other countries could learn from ${data.Entity}'s example.
 Make it engaging, informative, and easy to understand.`;
 
-      const paragraphResult = await geminiModel.generateContent(paragraphPrompt);
-      const generatedParagraph = paragraphResult.response.text();
+      const { data: paragraphData, error: paragraphError } = await supabase.functions.invoke('generate-climate-content', {
+        body: { prompt: paragraphPrompt }
+      });
+
+      if (paragraphError) throw paragraphError;
+      const generatedParagraph = paragraphData.text;
       setParagraph(generatedParagraph);
 
       const questionTypes = [
@@ -240,8 +244,12 @@ ${JSON.stringify(randomQuestion)}
 Adapt the question and options to fit the context of the paragraph while maintaining the question type.
 Return ONLY valid JSON, nothing else.`;
 
-      const quizResult = await geminiModel.generateContent(quizPrompt);
-      const quizText = quizResult.response.text();
+      const { data: quizData, error: quizError } = await supabase.functions.invoke('generate-climate-content', {
+        body: { prompt: quizPrompt }
+      });
+
+      if (quizError) throw quizError;
+      const quizText = quizData.text;
 
       const jsonMatch = quizText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -274,8 +282,12 @@ Use this fact: 'In ${year}, ${data.Area}'s temperature anomaly was ${value}${dat
 Explain what a temperature anomaly means, why ${data.Months || ''} temperatures are changing, what impacts this has on ${data.Area}'s climate and people, and why this matters for global climate change awareness.
 Make it engaging, informative, and easy to understand.`;
 
-      const paragraphResult = await geminiModel.generateContent(paragraphPrompt);
-      const generatedParagraph = paragraphResult.response.text();
+      const { data: paragraphData, error: paragraphError } = await supabase.functions.invoke('generate-climate-content', {
+        body: { prompt: paragraphPrompt }
+      });
+
+      if (paragraphError) throw paragraphError;
+      const generatedParagraph = paragraphData.text;
       setParagraph(generatedParagraph);
 
       const questionTypes = [
@@ -331,8 +343,12 @@ ${JSON.stringify(randomQuestion)}
 Adapt the question and options to fit the context of the paragraph while maintaining the question type.
 Return ONLY valid JSON, nothing else.`;
 
-      const quizResult = await geminiModel.generateContent(quizPrompt);
-      const quizText = quizResult.response.text();
+      const { data: quizData, error: quizError } = await supabase.functions.invoke('generate-climate-content', {
+        body: { prompt: quizPrompt }
+      });
+
+      if (quizError) throw quizError;
+      const quizText = quizData.text;
 
       const jsonMatch = quizText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
