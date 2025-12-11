@@ -19,7 +19,7 @@ export const EcoPointsBadge = ({ points, size = "md" }: EcoPointsBadgeProps) => 
   };
 
   return (
-    <div className={`inline-flex items-center gap-1.5 bg-accent text-accent-foreground rounded-full font-semibold ${sizeClasses[size]} shadow-eco transition-all hover:shadow-eco-lg hover:scale-105`}>
+    <div className={`inline-flex items-center gap-1.5 glass text-primary rounded-full font-semibold ${sizeClasses[size]} shadow-glass transition-all duration-300 hover:shadow-eco-lg hover:scale-105`}>
       <Leaf size={iconSizes[size]} className="fill-current" />
       <span>{points.toLocaleString()}</span>
     </div>
