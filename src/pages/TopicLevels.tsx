@@ -43,21 +43,20 @@ const levelConfig = {
   }
 };
 
-const difficultyColors = {
+const difficultyColors: Record<string, string> = {
   beginner: 'from-green-600 to-emerald-700',
   intermediate: 'from-yellow-500 to-orange-500',
   advanced: 'from-red-500 to-pink-500',
   expert: 'from-purple-600 to-indigo-700'
 };
 
-const difficultyShadows = {
+const difficultyShadows: Record<string, string> = {
   beginner: 'shadow-[0_0_20px_rgba(5,150,105,0.5)]',
   intermediate: 'shadow-[0_0_20px_rgba(249,115,22,0.5)]',
   advanced: 'shadow-[0_0_20px_rgba(239,68,68,0.5)]',
   expert: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]'
 };
 
-// Web pattern positions - organic scattered layout
 // Flowing path positions - creates a natural S-curve journey
 const webPositions = [
   { x: 20, y: 15 },   // Level 1 - top left start
@@ -76,43 +75,33 @@ const getNodePosition = (index: number) => {
   return webPositions[index] || { x: 50, y: 50 };
 };
 
-// Node radius in viewBox units (percentage of container)
-const NODE_RADIUS = 5; // Approx radius of node circle in viewBox units
+// Smooth curved segment between two node centers
+const getSegmentPath = (
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  index: number
+) => {
+  const midX = (from.x + to.x) / 2;
+  const midY = (from.y + to.y) / 2;
 
-// Generate curved path between two nodes, starting/ending at borders
-const getCurvedPath = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  
-  // Normalize direction
-  const nx = dx / distance;
-  const ny = dy / distance;
-  
-  // Start and end points at node borders
-  const startX = from.x + nx * NODE_RADIUS;
-  const startY = from.y + ny * NODE_RADIUS;
-  const endX = to.x - nx * NODE_RADIUS;
-  const endY = to.y - ny * NODE_RADIUS;
-  
-  // Control points for smooth curve
-  const midX = (startX + endX) / 2;
-  const midY = (startY + endY) / 2;
-  
-  // Slight curve perpendicular to the line
-  const perpX = -ny * 3;
-  const perpY = nx * 3;
-  
-  const cx = midX + perpX;
-  const cy = midY + perpY;
-  
-  return `M ${startX} ${startY} Q ${cx} ${cy}, ${endX} ${endY}`;
+  // Alternate curve direction for a gentle S-shape
+  const curveOffset = 7;
+  const cpY = midY + (index % 2 === 0 ? -curveOffset : curveOffset);
+
+  return `M ${from.x} ${from.y} Q ${midX} ${cpY}, ${to.x} ${to.y}`;
 };
 
 export default function TopicLevels() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
-  const { getTopicLevelStatus, getLessonProgress, getCorrectAnswers, getMedalForLevel, getTopicCompletionStats, LESSONS_PER_LEVEL } = useTopicProgress();
+  const {
+    getTopicLevelStatus,
+    getLessonProgress,
+    getCorrectAnswers,
+    getMedalForLevel,
+    getTopicCompletionStats,
+    LESSONS_PER_LEVEL
+  } = useTopicProgress();
   const [isVisible, setIsVisible] = useState(false);
   const [pathProgress, setPathProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -121,17 +110,19 @@ export default function TopicLevels() {
   const stats = topicId ? getTopicCompletionStats(topicId) : null;
 
   // Find the current active level (first unlocked)
-  const currentLevelIndex = config?.levels.findIndex(level => 
-    topicId && getTopicLevelStatus(topicId, level.id) === 'unlocked'
-  ) ?? -1;
+  const currentLevelIndex =
+    config?.levels.findIndex(
+      level => topicId && getTopicLevelStatus(topicId, level.id) === 'unlocked'
+    ) ?? -1;
 
   // Calculate completed levels with medals
-  const completedWithMedals = config?.levels.filter(level => {
-    const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
-    const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
-    const medal = getMedalForLevel(correctAnswers);
-    return status === 'completed' && medal;
-  }).length ?? 0;
+  const completedWithMedals =
+    config?.levels.filter(level => {
+      const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+      const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
+      const medal = getMedalForLevel(correctAnswers);
+      return status === 'completed' && medal;
+    }).length ?? 0;
 
   // Group levels into sections
   const sections = [
@@ -146,7 +137,6 @@ export default function TopicLevels() {
       const container = containerRef.current.querySelector('.aspect-\\[4\\/3\\]') as HTMLElement;
       if (container) {
         const rect = container.getBoundingClientRect();
-        const targetX = (rect.width * position.x) / 100;
         const targetY = (rect.height * position.y) / 100;
         
         window.scrollTo({
@@ -175,22 +165,24 @@ export default function TopicLevels() {
 
   useEffect(() => {
     setIsVisible(true);
-    
-    // Animate path tracing
-    const timer = setTimeout(() => {
-      const interval = setInterval(() => {
+
+    let intervalId: number | undefined;
+    const timeoutId = window.setTimeout(() => {
+      intervalId = window.setInterval(() => {
         setPathProgress(prev => {
           if (prev >= 100) {
-            clearInterval(interval);
+            if (intervalId) window.clearInterval(intervalId);
             return 100;
           }
           return prev + 2;
         });
       }, 20);
-      return () => clearInterval(interval);
     }, 500);
-    
-    return () => clearTimeout(timer);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (intervalId) window.clearInterval(intervalId);
+    };
   }, []);
 
   if (!config) {
@@ -222,7 +214,11 @@ export default function TopicLevels() {
             Back to Topics
           </Button>
 
-          <div className={`text-center space-y-4 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
+          <div
+            className={`text-center space-y-4 transition-all duration-1000 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+            }`}
+          >
             <div className="flex items-center justify-center gap-3">
               <Trophy className="w-8 h-8 text-primary" />
               <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
@@ -231,7 +227,9 @@ export default function TopicLevels() {
               <Trophy className="w-8 h-8 text-accent" />
             </div>
             <p className="text-lg text-muted-foreground">
-              {stats ? `${stats.completed} of ${stats.total} lessons completed • ${stats.levels}/10 levels mastered` : 'Complete all 50 lessons across 10 levels'}
+              {stats
+                ? `${stats.completed} of ${stats.total} lessons completed • ${stats.levels}/10 levels mastered`
+                : 'Complete all 50 lessons across 10 levels'}
             </p>
             
             {/* Progress Indicator */}
@@ -246,12 +244,13 @@ export default function TopicLevels() {
               
               {/* Section Navigation */}
               <div className="flex gap-2 justify-center flex-wrap pt-2">
-                {sections.map((section) => {
-                  const sectionLevels = config?.levels.filter(l => 
-                    l.id >= section.range[0] && l.id <= section.range[1]
-                  ) ?? [];
-                  const completedInSection = sectionLevels.filter(l => 
-                    topicId && getTopicLevelStatus(topicId, l.id) === 'completed'
+                {sections.map(section => {
+                  const sectionLevels =
+                    config?.levels.filter(
+                      l => l.id >= section.range[0] && l.id <= section.range[1]
+                    ) ?? [];
+                  const completedInSection = sectionLevels.filter(
+                    l => topicId && getTopicLevelStatus(topicId, l.id) === 'completed'
                   ).length;
                   
                   return (
@@ -281,24 +280,40 @@ export default function TopicLevels() {
           </div>
 
           {/* Web/Circular Layout */}
-          <div ref={containerRef} className={`relative w-full transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div
+            ref={containerRef}
+            className={`relative w-full transition-all duration-1000 delay-300 ${
+              isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            }`}
+          >
             <div className="relative w-full aspect-[4/3] max-w-5xl mx-auto">
-              {/* SVG Connections - using viewBox for proper scaling */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 1 }}>
+              {/* SVG Connections */}
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                style={{ zIndex: 1 }}
+              >
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: 'hsl(145, 80%, 39%)', stopOpacity: 0.8 }} />
-                    <stop offset="100%" style={{ stopColor: 'hsl(152, 50%, 50%)', stopOpacity: 0.8 }} />
+                    <stop
+                      offset="0%"
+                      style={{ stopColor: 'hsl(145, 80%, 39%)', stopOpacity: 0.8 }}
+                    />
+                    <stop
+                      offset="100%"
+                      style={{ stopColor: 'hsl(152, 50%, 50%)', stopOpacity: 0.8 }}
+                    />
                   </linearGradient>
                   <linearGradient id="activeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 1 }} />
                     <stop offset="100%" style={{ stopColor: '#34d399', stopOpacity: 1 }} />
                   </linearGradient>
                   <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                     <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
                 </defs>
@@ -306,40 +321,43 @@ export default function TopicLevels() {
                 {/* Draw curved connections between sequential levels */}
                 {config.levels.map((level, index) => {
                   if (index === config.levels.length - 1) return null;
-                  const pos1 = getNodePosition(index);
-                  const pos2 = getNodePosition(index + 1);
-                  const status1 = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
+
+                  const from = getNodePosition(index);
+                  const to = getNodePosition(index + 1);
+
+                  const status1 = topicId
+                    ? getTopicLevelStatus(topicId, level.id)
+                    : 'locked';
                   const isCompleted = status1 === 'completed';
                   const isActive = index <= currentLevelIndex;
-                  
-                  // Generate curved path
-                  const pathD = getCurvedPath(pos1, pos2);
-                  
+
+                  const pathD = getSegmentPath(from, to, index);
+
                   return (
                     <g key={`line-${index}`}>
-                      {/* Base dashed path (for locked levels) */}
+                      {/* Base dashed path */}
                       <path
                         d={pathD}
                         fill="none"
                         stroke="hsl(var(--muted-foreground))"
                         strokeWidth="0.8"
-                        strokeDasharray="2,2"
-                        opacity="0.4"
+                        strokeDasharray="3 3"
+                        opacity="0.35"
                         strokeLinecap="round"
                       />
-                      {/* Animated progress path for active/completed */}
+                      {/* Active/progress overlay */}
                       {isActive && (
                         <path
                           d={pathD}
                           fill="none"
-                          stroke={isCompleted ? "#10b981" : "url(#lineGradient)"}
-                          strokeWidth="1.2"
+                          stroke={isCompleted ? 'url(#activeGradient)' : 'url(#lineGradient)'}
+                          strokeWidth="1.4"
                           strokeLinecap="round"
-                          strokeDasharray="200"
-                          strokeDashoffset={isCompleted ? 0 : 200 - (pathProgress * 2)}
-                          style={{ 
-                            filter: "url(#glow)",
-                            transition: 'stroke-dashoffset 0.6s ease-out'
+                          strokeDasharray="100"
+                          strokeDashoffset={isCompleted ? 0 : 100 - pathProgress}
+                          style={{
+                            filter: 'url(#glow)',
+                            transition: 'stroke-dashoffset 0.3s ease-out'
                           }}
                         />
                       )}
@@ -371,8 +389,10 @@ export default function TopicLevels() {
                     }}
                   >
                     <button
-                      onClick={() => !isLocked && navigate(`/climate-lesson/${topicId}/${level.id}`)}
-                      onMouseEnter={(e) => medal && triggerConfetti(e)}
+                      onClick={() =>
+                        !isLocked && navigate(`/climate-lesson/${topicId}/${level.id}`)
+                      }
+                      onMouseEnter={e => medal && triggerConfetti(e)}
                       disabled={isLocked}
                       className="group relative"
                     >
@@ -386,7 +406,9 @@ export default function TopicLevels() {
                               style={{
                                 top: '50%',
                                 left: '50%',
-                                animation: `float-particle ${2 + i * 0.3}s ease-in-out infinite`,
+                                animation: `float-particle ${
+                                  2 + i * 0.3
+                                }s ease-in-out infinite`,
                                 animationDelay: `${i * 0.2}s`,
                                 transform: `rotate(${i * 60}deg) translateX(40px)`
                               }}
@@ -398,13 +420,13 @@ export default function TopicLevels() {
                       {/* Orbiting icons for active nodes */}
                       {status === 'unlocked' && (
                         <>
-                          <div 
+                          <div
                             className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full"
                             style={{ animation: 'orbit 3s linear infinite' }}
                           >
                             <Sparkles className="w-4 h-4 text-yellow-400" />
                           </div>
-                          <div 
+                          <div
                             className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full"
                             style={{ animation: 'orbit 3s linear infinite reverse' }}
                           >
@@ -415,7 +437,13 @@ export default function TopicLevels() {
                       
                       {/* Glow effect for active/completed */}
                       {!isLocked && (
-                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${difficultyColors[level.difficulty]} blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-300 ${difficultyShadows[level.difficulty]}`} />
+                        <div
+                          className={`absolute inset-0 rounded-full bg-gradient-to-br ${
+                            difficultyColors[level.difficulty]
+                          } blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-300 ${
+                            difficultyShadows[level.difficulty]
+                          }`}
+                        />
                       )}
                       
                       {/* Pulsing ring for unlocked */}
@@ -430,20 +458,31 @@ export default function TopicLevels() {
                           flex items-center justify-center
                           border-4 font-bold text-xl
                           transition-all duration-300
-                          ${isLocked 
-                            ? 'bg-muted border-muted-foreground/30 cursor-not-allowed opacity-60' 
-                            : `bg-gradient-to-br ${difficultyColors[level.difficulty]} border-white ${difficultyShadows[level.difficulty]} cursor-pointer hover:scale-125 hover:rotate-12`
+                          ${
+                            isLocked
+                              ? 'bg-muted border-muted-foreground/30 cursor-not-allowed opacity-60'
+                              : `bg-gradient-to-br ${
+                                  difficultyColors[level.difficulty]
+                                } border-white ${difficultyShadows[level.difficulty]} cursor-pointer hover:scale-125 hover:rotate-12`
                           }
                         `}
                       >
                         {isLocked && <Lock className="w-6 h-6 text-muted-foreground" />}
-                        {!isLocked && !isCompleted && <span className="text-white drop-shadow-lg">{level.id}</span>}
-                        {isCompleted && <CheckCircle2 className="w-8 h-8 text-white drop-shadow-lg" />}
+                        {!isLocked && !isCompleted && (
+                          <span className="text-white drop-shadow-lg">{level.id}</span>
+                        )}
+                        {isCompleted && (
+                          <CheckCircle2 className="w-8 h-8 text-white drop-shadow-lg" />
+                        )}
                         
                         {/* Medal overlay */}
                         {medal && (
                           <div className="absolute -top-2 -right-2 text-2xl animate-bounce drop-shadow-lg">
-                            {medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : '🥉'}
+                            {medal === 'gold'
+                              ? '🥇'
+                              : medal === 'silver'
+                              ? '🥈'
+                              : '🥉'}
                           </div>
                         )}
                         
@@ -457,7 +496,11 @@ export default function TopicLevels() {
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50">
                         <div className="bg-card border-2 border-border rounded-xl p-4 shadow-eco-lg space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className={`text-xs font-bold px-2 py-1 rounded-full bg-gradient-to-r ${difficultyColors[level.difficulty]} text-white`}>
+                            <span
+                              className={`text-xs font-bold px-2 py-1 rounded-full bg-gradient-to-r ${
+                                difficultyColors[level.difficulty]
+                              } text-white`}
+                            >
                               {level.difficulty}
                             </span>
                             <span className="text-xs text-muted-foreground font-medium">
@@ -468,10 +511,12 @@ export default function TopicLevels() {
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-xs">
                               <span className="text-muted-foreground">Progress</span>
-                              <span className="font-semibold text-primary">{lessonsCompleted}/{LESSONS_PER_LEVEL}</span>
+                              <span className="font-semibold text-primary">
+                                {lessonsCompleted}/{LESSONS_PER_LEVEL}
+                              </span>
                             </div>
                             <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                              <div 
+                              <div
                                 className="h-full bg-gradient-to-r from-primary to-accent"
                                 style={{ width: `${lessonProgress}%` }}
                               />
@@ -492,14 +537,21 @@ export default function TopicLevels() {
           </div>
 
           {/* Legend */}
-          <div className={`mt-12 p-6 rounded-xl bg-card/50 backdrop-blur-sm border-2 border-border transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div
+            className={`mt-12 p-6 rounded-xl bg-card/50 backdrop-blur-sm border-2 border-border transition-all duration-1000 delay-500 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <Award className="w-5 h-5 text-primary" />
               Difficulty Levels
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(difficultyColors).map(([difficulty, colors]) => (
-                <div key={difficulty} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                <div
+                  key={difficulty}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                >
                   <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${colors} shadow-lg`} />
                   <span className="text-sm font-semibold capitalize">{difficulty}</span>
                 </div>
