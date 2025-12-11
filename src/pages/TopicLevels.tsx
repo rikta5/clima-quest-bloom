@@ -58,17 +58,18 @@ const difficultyShadows = {
 };
 
 // Web pattern positions - organic scattered layout
+// Flowing path positions - creates a natural S-curve journey
 const webPositions = [
-  { x: 15, y: 30 },   // Level 1 - top left
-  { x: 38, y: 18 },   // Level 2 - top center-left
-  { x: 62, y: 22 },   // Level 3 - top center-right
-  { x: 85, y: 32 },   // Level 4 - top right
-  { x: 78, y: 55 },   // Level 5 - middle right
-  { x: 50, y: 50 },   // Level 6 - center
-  { x: 22, y: 55 },   // Level 7 - middle left
-  { x: 15, y: 78 },   // Level 8 - bottom left
-  { x: 45, y: 82 },   // Level 9 - bottom center
-  { x: 80, y: 80 },   // Level 10 - bottom right
+  { x: 20, y: 15 },   // Level 1 - top left start
+  { x: 35, y: 25 },   // Level 2 - flowing right
+  { x: 50, y: 20 },   // Level 3 - top center
+  { x: 65, y: 28 },   // Level 4 - continuing right
+  { x: 75, y: 40 },   // Level 5 - curve down right
+  { x: 70, y: 55 },   // Level 6 - middle right
+  { x: 50, y: 60 },   // Level 7 - center
+  { x: 30, y: 65 },   // Level 8 - flowing left
+  { x: 20, y: 77 },   // Level 9 - bottom left
+  { x: 50, y: 85 },   // Level 10 - bottom center (final boss)
 ];
 
 const getNodePosition = (index: number) => {
