@@ -75,18 +75,37 @@ const getNodePosition = (index: number) => {
   return webPositions[index] || { x: 50, y: 50 };
 };
 
-// Generate curved path between two points
+// Node radius in viewBox units (percentage of container)
+const NODE_RADIUS = 5; // Approx radius of node circle in viewBox units
+
+// Generate curved path between two nodes, starting/ending at borders
 const getCurvedPath = (from: { x: number; y: number }, to: { x: number; y: number }) => {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
   
-  // Control point offset for smooth curves
-  const cx1 = from.x + dx * 0.4;
-  const cy1 = from.y + dy * 0.1;
-  const cx2 = from.x + dx * 0.6;
-  const cy2 = to.y - dy * 0.1;
+  // Normalize direction
+  const nx = dx / distance;
+  const ny = dy / distance;
   
-  return `M ${from.x} ${from.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${to.x} ${to.y}`;
+  // Start and end points at node borders
+  const startX = from.x + nx * NODE_RADIUS;
+  const startY = from.y + ny * NODE_RADIUS;
+  const endX = to.x - nx * NODE_RADIUS;
+  const endY = to.y - ny * NODE_RADIUS;
+  
+  // Control points for smooth curve
+  const midX = (startX + endX) / 2;
+  const midY = (startY + endY) / 2;
+  
+  // Slight curve perpendicular to the line
+  const perpX = -ny * 3;
+  const perpY = nx * 3;
+  
+  const cx = midX + perpX;
+  const cy = midY + perpY;
+  
+  return `M ${startX} ${startY} Q ${cx} ${cy}, ${endX} ${endY}`;
 };
 
 export default function TopicLevels() {
@@ -302,14 +321,10 @@ export default function TopicLevels() {
                         d={pathD}
                         fill="none"
                         stroke="hsl(var(--muted-foreground))"
-                        strokeWidth="3"
-                        strokeDasharray="8,6"
-                        opacity="0.35"
+                        strokeWidth="0.8"
+                        strokeDasharray="2,2"
+                        opacity="0.4"
                         strokeLinecap="round"
-                        style={{ 
-                          transform: 'scale(1)',
-                          transformOrigin: 'center'
-                        }}
                       />
                       {/* Animated progress path for active/completed */}
                       {isActive && (
@@ -317,13 +332,13 @@ export default function TopicLevels() {
                           d={pathD}
                           fill="none"
                           stroke={isCompleted ? "#10b981" : "url(#lineGradient)"}
-                          strokeWidth="4"
+                          strokeWidth="1.2"
                           strokeLinecap="round"
-                          strokeDasharray="500"
-                          strokeDashoffset={isCompleted ? 0 : 500 - (pathProgress * 5)}
+                          strokeDasharray="200"
+                          strokeDashoffset={isCompleted ? 0 : 200 - (pathProgress * 2)}
                           style={{ 
                             filter: "url(#glow)",
-                            transition: 'stroke-dashoffset 0.8s ease-out'
+                            transition: 'stroke-dashoffset 0.6s ease-out'
                           }}
                         />
                       )}
