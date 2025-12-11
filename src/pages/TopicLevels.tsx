@@ -57,20 +57,36 @@ const difficultyShadows = {
   expert: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]'
 };
 
-// Sequential serpentine path - 3 rows of levels
-const getNodePosition = (index: number, total: number) => {
-  const row = Math.floor(index / 4);
-  const col = index % 4;
-  const isReversedRow = row % 2 === 1;
+// Web pattern positions - organic scattered layout
+const webPositions = [
+  { x: 15, y: 30 },   // Level 1 - top left
+  { x: 38, y: 18 },   // Level 2 - top center-left
+  { x: 62, y: 22 },   // Level 3 - top center-right
+  { x: 85, y: 32 },   // Level 4 - top right
+  { x: 78, y: 55 },   // Level 5 - middle right
+  { x: 50, y: 50 },   // Level 6 - center
+  { x: 22, y: 55 },   // Level 7 - middle left
+  { x: 15, y: 78 },   // Level 8 - bottom left
+  { x: 45, y: 82 },   // Level 9 - bottom center
+  { x: 80, y: 80 },   // Level 10 - bottom right
+];
+
+const getNodePosition = (index: number) => {
+  return webPositions[index] || { x: 50, y: 50 };
+};
+
+// Generate curved path between two points
+const getCurvedPath = (from: { x: number; y: number }, to: { x: number; y: number }) => {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
   
-  // Calculate x position - serpentine pattern
-  const xPos = isReversedRow ? (85 - col * 23) : (15 + col * 23);
+  // Control point offset for smooth curves
+  const cx1 = from.x + dx * 0.4;
+  const cy1 = from.y + dy * 0.1;
+  const cx2 = from.x + dx * 0.6;
+  const cy2 = to.y - dy * 0.1;
   
-  // Calculate y position - 3 rows
-  const yPositions = [25, 55, 85];
-  const yPos = yPositions[row] || 85;
-  
-  return { x: xPos, y: yPos };
+  return `M ${from.x} ${from.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${to.x} ${to.y}`;
 };
 
 export default function TopicLevels() {
@@ -105,7 +121,7 @@ export default function TopicLevels() {
   ];
 
   const scrollToLevel = (levelId: number) => {
-    const position = getNodePosition(levelId - 1, config?.levels.length ?? 10);
+    const position = getNodePosition(levelId - 1);
     if (containerRef.current) {
       const container = containerRef.current.querySelector('.aspect-\\[4\\/3\\]') as HTMLElement;
       if (container) {
@@ -246,9 +262,9 @@ export default function TopicLevels() {
 
           {/* Web/Circular Layout */}
           <div ref={containerRef} className={`relative w-full transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="relative w-full aspect-[3/2] max-w-5xl mx-auto">
-              {/* SVG Connections */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+            <div className="relative w-full aspect-[4/3] max-w-5xl mx-auto">
+              {/* SVG Connections - using viewBox for proper scaling */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ zIndex: 1 }}>
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style={{ stopColor: 'hsl(145, 80%, 39%)', stopOpacity: 0.8 }} />
@@ -267,40 +283,48 @@ export default function TopicLevels() {
                   </filter>
                 </defs>
                 
-                {/* Draw connections between sequential levels */}
+                {/* Draw curved connections between sequential levels */}
                 {config.levels.map((level, index) => {
                   if (index === config.levels.length - 1) return null;
-                  const pos1 = getNodePosition(index, config.levels.length);
-                  const pos2 = getNodePosition(index + 1, config.levels.length);
+                  const pos1 = getNodePosition(index);
+                  const pos2 = getNodePosition(index + 1);
                   const status1 = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
                   const isCompleted = status1 === 'completed';
                   const isActive = index <= currentLevelIndex;
                   
+                  // Generate curved path
+                  const pathD = getCurvedPath(pos1, pos2);
+                  
                   return (
                     <g key={`line-${index}`}>
-                      {/* Base line (dashed for locked) */}
-                      <line
-                        x1={`${pos1.x}%`}
-                        y1={`${pos1.y}%`}
-                        x2={`${pos2.x}%`}
-                        y2={`${pos2.y}%`}
+                      {/* Base dashed path (for locked levels) */}
+                      <path
+                        d={pathD}
+                        fill="none"
                         stroke="hsl(var(--muted-foreground))"
                         strokeWidth="3"
-                        strokeDasharray={isActive ? "0" : "8,8"}
-                        opacity={isActive ? "0.2" : "0.3"}
+                        strokeDasharray="8,6"
+                        opacity="0.35"
                         strokeLinecap="round"
+                        style={{ 
+                          transform: 'scale(1)',
+                          transformOrigin: 'center'
+                        }}
                       />
-                      {/* Colored progress line for active/completed */}
+                      {/* Animated progress path for active/completed */}
                       {isActive && (
-                        <line
-                          x1={`${pos1.x}%`}
-                          y1={`${pos1.y}%`}
-                          x2={`${pos2.x}%`}
-                          y2={`${pos2.y}%`}
+                        <path
+                          d={pathD}
+                          fill="none"
                           stroke={isCompleted ? "#10b981" : "url(#lineGradient)"}
                           strokeWidth="4"
                           strokeLinecap="round"
-                          style={{ filter: "url(#glow)" }}
+                          strokeDasharray="500"
+                          strokeDashoffset={isCompleted ? 0 : 500 - (pathProgress * 5)}
+                          style={{ 
+                            filter: "url(#glow)",
+                            transition: 'stroke-dashoffset 0.8s ease-out'
+                          }}
                         />
                       )}
                     </g>
@@ -310,7 +334,7 @@ export default function TopicLevels() {
 
               {/* Level Nodes */}
               {config.levels.map((level, index) => {
-                const position = getNodePosition(index, config.levels.length);
+                const position = getNodePosition(index);
                 const status = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
                 const lessonsCompleted = topicId ? getLessonProgress(topicId, level.id) : 0;
                 const correctAnswers = topicId ? getCorrectAnswers(topicId, level.id) : 0;
