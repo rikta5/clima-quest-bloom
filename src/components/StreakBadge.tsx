@@ -19,7 +19,7 @@ export const StreakBadge = ({ days, size = "md" }: StreakBadgeProps) => {
   };
 
   return (
-    <div className={`inline-flex items-center gap-1.5 glass text-orange rounded-full font-semibold ${sizeClasses[size]} shadow-glass transition-all duration-300 hover:shadow-eco-lg hover:scale-105`}>
+    <div className={`inline-flex items-center gap-1.5 bg-orange text-white rounded-full font-semibold ${sizeClasses[size]} shadow-eco transition-all hover:shadow-eco-lg hover:scale-105`}>
       <Flame size={iconSizes[size]} className="fill-current" />
       <span>{days} day{days !== 1 ? 's' : ''}</span>
     </div>

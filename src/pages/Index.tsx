@@ -56,16 +56,16 @@ const Index = () => {
         {/* Main 3-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column - Mascot & Brand */}
-          <Card className="lg:col-span-3 p-6 flex flex-col items-center text-center space-y-4">
+          <Card className="lg:col-span-3 p-6 flex flex-col items-center text-center space-y-4 hover:shadow-eco-lg transition-all">
             <div className="w-48 h-48 flex items-center justify-center">
               <img 
                 src={mascotImage} 
                 alt="ClimaQuest Mascot - Climat the Bird" 
-                className="w-full h-full object-contain animate-liquid-float drop-shadow-xl"
+                className="w-full h-full object-contain animate-bounce-slow drop-shadow-xl"
               />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ClimaQuest
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ const Index = () => {
             {/* User Info Row */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Avatar className="w-16 h-16 border-2 border-white/50 shadow-glass glass rounded-full">
+                <Avatar className="w-16 h-16 border-4 border-primary shadow-eco">
                   <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
                     {avatarInitials}
                   </AvatarFallback>
@@ -107,18 +107,18 @@ const Index = () => {
               Eco Partners
             </h3>
             <div className="space-y-3">
-              <div className="aspect-square rounded-2xl overflow-hidden glass hover:shadow-glass-lg transition-all duration-300 cursor-pointer group">
+              <div className="aspect-square rounded-lg overflow-hidden border border-border hover:shadow-eco transition-all cursor-pointer group">
                 <img 
                   src={partnerAd1} 
                   alt="Eco-friendly Electric Vehicles Partner" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
               </div>
-              <div className="aspect-square rounded-2xl overflow-hidden glass hover:shadow-glass-lg transition-all duration-300 cursor-pointer group">
+              <div className="aspect-square rounded-lg overflow-hidden border border-border hover:shadow-eco transition-all cursor-pointer group">
                 <img 
                   src={partnerAd2} 
                   alt="Renewable Energy Solutions Partner" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 />
               </div>
             </div>
