@@ -57,25 +57,20 @@ const difficultyShadows = {
   expert: 'shadow-[0_0_20px_rgba(124,58,237,0.5)]'
 };
 
-// Circular positions for 10 levels in a web-like pattern
+// Sequential serpentine path - 3 rows of levels
 const getNodePosition = (index: number, total: number) => {
-  const patterns = [
-    // Center start
-    { x: 50, y: 50 },
-    // First ring - 3 nodes
-    { x: 50, y: 20 },
-    { x: 75, y: 35 },
-    { x: 25, y: 35 },
-    // Second ring - 3 nodes
-    { x: 80, y: 50 },
-    { x: 65, y: 70 },
-    { x: 20, y: 50 },
-    // Third ring - 3 nodes
-    { x: 50, y: 80 },
-    { x: 35, y: 70 },
-    { x: 85, y: 70 },
-  ];
-  return patterns[index] || { x: 50, y: 50 };
+  const row = Math.floor(index / 4);
+  const col = index % 4;
+  const isReversedRow = row % 2 === 1;
+  
+  // Calculate x position - serpentine pattern
+  const xPos = isReversedRow ? (85 - col * 23) : (15 + col * 23);
+  
+  // Calculate y position - 3 rows
+  const yPositions = [25, 55, 85];
+  const yPos = yPositions[row] || 85;
+  
+  return { x: xPos, y: yPos };
 };
 
 export default function TopicLevels() {
@@ -251,7 +246,7 @@ export default function TopicLevels() {
 
           {/* Web/Circular Layout */}
           <div ref={containerRef} className={`relative w-full transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="relative w-full aspect-[4/3] max-w-5xl mx-auto">
+            <div className="relative w-full aspect-[3/2] max-w-5xl mx-auto">
               {/* SVG Connections */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
                 <defs>
@@ -264,7 +259,7 @@ export default function TopicLevels() {
                     <stop offset="100%" style={{ stopColor: '#34d399', stopOpacity: 1 }} />
                   </linearGradient>
                   <filter id="glow">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                     <feMerge>
                       <feMergeNode in="coloredBlur"/>
                       <feMergeNode in="SourceGraphic"/>
@@ -278,39 +273,34 @@ export default function TopicLevels() {
                   const pos1 = getNodePosition(index, config.levels.length);
                   const pos2 = getNodePosition(index + 1, config.levels.length);
                   const status1 = topicId ? getTopicLevelStatus(topicId, level.id) : 'locked';
-                  const status2 = topicId ? getTopicLevelStatus(topicId, config.levels[index + 1].id) : 'locked';
                   const isCompleted = status1 === 'completed';
                   const isActive = index <= currentLevelIndex;
-                  const shouldAnimate = isActive && index <= currentLevelIndex;
                   
                   return (
                     <g key={`line-${index}`}>
-                      {/* Base line */}
+                      {/* Base line (dashed for locked) */}
                       <line
                         x1={`${pos1.x}%`}
                         y1={`${pos1.y}%`}
                         x2={`${pos2.x}%`}
                         y2={`${pos2.y}%`}
-                        stroke="hsl(var(--muted))"
-                        strokeWidth="4"
-                        strokeDasharray="5,5"
-                        opacity="0.3"
+                        stroke="hsl(var(--muted-foreground))"
+                        strokeWidth="3"
+                        strokeDasharray={isActive ? "0" : "8,8"}
+                        opacity={isActive ? "0.2" : "0.3"}
+                        strokeLinecap="round"
                       />
-                      {/* Animated progress line */}
-                      {shouldAnimate && (
+                      {/* Colored progress line for active/completed */}
+                      {isActive && (
                         <line
                           x1={`${pos1.x}%`}
                           y1={`${pos1.y}%`}
                           x2={`${pos2.x}%`}
                           y2={`${pos2.y}%`}
-                          stroke={isCompleted ? "url(#activeGradient)" : "url(#lineGradient)"}
-                          strokeWidth="5"
-                          strokeDasharray="1000"
-                          strokeDashoffset={1000 - (pathProgress * 10)}
-                          style={{ 
-                            filter: "url(#glow)",
-                            transition: 'stroke-dashoffset 0.5s ease-out'
-                          }}
+                          stroke={isCompleted ? "#10b981" : "url(#lineGradient)"}
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                          style={{ filter: "url(#glow)" }}
                         />
                       )}
                     </g>
