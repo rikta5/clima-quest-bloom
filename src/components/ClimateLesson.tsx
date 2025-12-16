@@ -185,10 +185,35 @@ export default function ClimateLesson() {
         recyclingRate: recyclingRate
       });
 
-      const paragraphPrompt = `Write a 150-word educational paragraph for high school students about e-waste recycling in ${data.Entity} in ${data.Year}.
-Use this fact: 'In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of its electronic waste.'
-Explain why ${recyclingRate > 50 ? 'such a high' : 'this'} recycling rate matters, what benefits it brings to the environment and economy, and what lessons other countries could learn from ${data.Entity}'s example.
-Make it engaging, informative, and easy to understand.`;
+      // Different content formats based on lesson number for variety
+      const contentFormats = [
+        // Lesson 1: Scientific/Technical Focus
+        `Write a 150-word educational paragraph explaining the SCIENCE behind e-waste recycling in ${data.Entity}.
+Fact: In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of e-waste.
+Focus on: What toxic materials are in electronics (lead, mercury, cadmium)? How does recycling recover valuable materials like gold, copper, and rare earth metals? What are the technical challenges? Use scientific terminology but explain clearly for students.`,
+        
+        // Lesson 2: Social Impact/Human Story
+        `Write a 150-word compelling STORY about how e-waste recycling affects communities in ${data.Entity}.
+Fact: In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of e-waste.
+Tell a narrative: Imagine a family living near an e-waste facility. How does ${recyclingRate > 50 ? 'good' : 'poor'} recycling practices affect their health, jobs, and environment? Make it personal and relatable. Include emotional connection.`,
+        
+        // Lesson 3: Economic/Business Perspective
+        `Write a 150-word analysis of the ECONOMIC aspects of e-waste recycling in ${data.Entity}.
+Fact: In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of e-waste.
+Explore: What is the market value of recovered materials? How many jobs does this create? What are the costs vs benefits? Why do businesses invest in recycling? Include specific examples of economic incentives.`,
+        
+        // Lesson 4: Comparative/Global Context
+        `Write a 150-word COMPARISON analyzing ${data.Entity}'s e-waste recycling performance globally.
+Fact: In ${data.Year}, ${data.Entity} recycled ${recyclingRate}% of e-waste.
+Compare: How does this rate compare to world leaders? What makes some countries more successful? What can ${data.Entity} learn from best practices? Why do recycling rates vary so much between nations? Be analytical.`,
+        
+        // Lesson 5: Solution-Oriented/Future Focus
+        `Write a 150-word forward-looking piece about SOLUTIONS to improve e-waste recycling beyond ${data.Entity}'s current ${recyclingRate}%.
+Year context: ${data.Year}.
+Focus on: What innovative technologies exist? What policy changes would help? How can individuals make a difference? What will e-waste management look like in 2030? Be optimistic but realistic about challenges and opportunities.`
+      ];
+
+      const paragraphPrompt = contentFormats[(currentLesson - 1) % contentFormats.length];
 
       const { data: paragraphData, error: paragraphError } = await supabase.functions.invoke('generate-climate-content', {
         body: { prompt: paragraphPrompt }
@@ -198,52 +223,69 @@ Make it engaging, informative, and easy to understand.`;
       const generatedParagraph = paragraphData.text;
       setParagraph(generatedParagraph);
 
+      // Different question types based on lesson number
       const questionTypes = [
+        // Lesson 1: Factual/Scientific
         {
           question: `What percentage of electronic waste did ${data.Entity} recycle in ${data.Year}?`,
           options: [`${Math.max(0, recyclingRate - 20)}%`, `${Math.max(0, recyclingRate - 10)}%`, `${recyclingRate}%`, `${recyclingRate + 10}%`],
           correctIndex: 2
         },
+        // Lesson 2: Impact/Analytical
         {
-          question: `Why is e-waste recycling important for the environment?`,
+          question: `How does improper e-waste disposal affect communities and the environment?`,
           options: [
-            "It only saves money",
-            "It prevents toxic materials from polluting soil and water",
-            "It makes electronics cheaper",
-            "It reduces electricity usage"
+            "It has minimal environmental impact",
+            "Toxic substances leak into soil, water, and air, harming health and ecosystems",
+            "It only affects electronics manufacturers",
+            "It makes technology more expensive"
           ],
           correctIndex: 1
         },
+        // Lesson 3: Economic/Practical
         {
-          question: `What happens when e-waste is not properly recycled?`,
+          question: `What economic benefits come from recycling e-waste?`,
           options: [
-            "Nothing significant occurs",
-            "It creates more jobs",
-            "Toxic substances can leak into the environment",
-            "Electronics become more valuable"
+            "Only reduced waste disposal costs",
+            "Recovery of valuable materials like gold and copper, plus job creation",
+            "Higher taxes on electronics",
+            "Decreased technology innovation"
+          ],
+          correctIndex: 1
+        },
+        // Lesson 4: Comparative/Critical Thinking
+        {
+          question: `Why do some countries have significantly higher e-waste recycling rates than others?`,
+          options: [
+            "They have more electronics",
+            "Better regulations, infrastructure, public awareness, and economic incentives",
+            "They produce less e-waste",
+            "Their electronics are easier to recycle"
+          ],
+          correctIndex: 1
+        },
+        // Lesson 5: Solution/Application
+        {
+          question: `What is the MOST effective way to improve e-waste recycling rates?`,
+          options: [
+            "Only relying on voluntary individual actions",
+            "Banning all electronics",
+            "Combining policy regulations, accessible collection systems, and public education",
+            "Waiting for technology to solve it automatically"
           ],
           correctIndex: 2
-        },
-        {
-          question: `Countries with high e-waste recycling rates generally see:`,
-          options: [
-            "Decreased environmental protection",
-            "Better resource recovery and less pollution",
-            "Higher electronics prices",
-            "Reduced technology innovation"
-          ],
-          correctIndex: 1
         }
       ];
 
-      const randomQuestion = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+      // Use lesson-specific question type instead of random
+      const selectedQuestion = questionTypes[(currentLesson - 1) % questionTypes.length];
       const quizPrompt = `Based on this paragraph about e-waste in ${data.Entity}:
 "${generatedParagraph}"
 
 Generate ONE multiple-choice question in this EXACT JSON format (no other text):
-${JSON.stringify(randomQuestion)}
+${JSON.stringify(selectedQuestion)}
 
-Adapt the question and options to fit the context of the paragraph while maintaining the question type.
+Adapt the question and options to fit the context of the paragraph while maintaining the question type and perspective.
 Return ONLY valid JSON, nothing else.`;
 
       const { data: quizData, error: quizError } = await supabase.functions.invoke('generate-climate-content', {
@@ -278,11 +320,35 @@ Return ONLY valid JSON, nothing else.`;
 
       const { year, value } = yearData;
       const monthInfo = data.Months ? `, focusing on ${data.Months}` : '';
+      const direction = value > 0 ? 'warming' : 'cooling';
+      const magnitude = Math.abs(value) > 1 ? 'significant' : 'moderate';
 
-      const paragraphPrompt = `Write a 150-word educational paragraph for high school students about climate-driven temperature change in ${data.Area}${monthInfo}.
-Use this fact: 'In ${year}, ${data.Area}'s temperature anomaly was ${value}${data.Unit} compared to the 1961 baseline.'
-Explain what a temperature anomaly means, why ${data.Months || ''} temperatures are changing, what impacts this has on ${data.Area}'s climate and people, and why this matters for global climate change awareness.
-Make it engaging, informative, and easy to understand.`;
+      // Different content perspectives for each lesson
+      const contentFormats = [
+        // Lesson 1: Scientific Explanation
+        `Write a 150-word SCIENTIFIC explanation of temperature anomalies in ${data.Area}${monthInfo}.
+Fact: In ${year}, the temperature anomaly was ${value}${data.Unit} vs 1961 baseline.
+Explain: What is a temperature anomaly? How do scientists measure it? What causes ${direction}? What role do greenhouse gases, ocean currents, and atmospheric patterns play? Use precise scientific language but make it accessible to students.`,
+        
+        // Lesson 2: Real-World Impact Story
+        `Write a 150-word narrative about how a ${magnitude} ${direction} of ${Math.abs(value)}${data.Unit} affects DAILY LIFE in ${data.Area}${monthInfo}.
+Year: ${year}.
+Tell a story: How does this impact agriculture, water resources, health, or energy use? Include specific examples of people, crops, or ecosystems affected. Make readers feel the human dimension of climate data.`,
+        
+        // Lesson 3: Economic & Infrastructure Impact
+        `Write a 150-word analysis of the ECONOMIC consequences of ${data.Area}'s ${value}${data.Unit} temperature anomaly in ${year}${monthInfo}.
+Examine: Costs to agriculture, infrastructure damage, energy demands, insurance impacts, and adaptation expenses. What industries are most vulnerable? What are the long-term economic risks? Be specific with examples.`,
+        
+        // Lesson 4: Comparative & Trend Analysis
+        `Write a 150-word COMPARATIVE analysis placing ${data.Area}'s ${year} temperature anomaly (${value}${data.Unit}) in GLOBAL CONTEXT${monthInfo}.
+Compare: How does this trend compare to global averages? Why do some regions warm faster? Is ${data.Area} above or below global trends? What does this tell us about regional climate vulnerability? Analyze patterns critically.`,
+        
+        // Lesson 5: Solutions & Adaptation
+        `Write a 150-word forward-thinking piece about SOLUTIONS to address ${data.Area}'s climate challenges given its ${value}${data.Unit} temperature shift (${year})${monthInfo}.
+Focus: What mitigation strategies exist? How can communities adapt? What technologies or policies show promise? What can individuals do? Balance realism about challenges with hope about solutions.`
+      ];
+
+      const paragraphPrompt = contentFormats[(currentLesson - 1) % contentFormats.length];
 
       const { data: paragraphData, error: paragraphError } = await supabase.functions.invoke('generate-climate-content', {
         body: { prompt: paragraphPrompt }
@@ -292,7 +358,9 @@ Make it engaging, informative, and easy to understand.`;
       const generatedParagraph = paragraphData.text;
       setParagraph(generatedParagraph);
 
+      // Diverse question types matching lesson perspectives
       const questionTypes = [
+        // Lesson 1: Scientific/Technical
         {
           question: `What was ${data.Area}'s temperature anomaly in ${year} compared to the 1961 baseline?`,
           options: [
@@ -303,46 +371,61 @@ Make it engaging, informative, and easy to understand.`;
           ],
           correctIndex: 2
         },
+        // Lesson 2: Impact/Application
         {
-          question: `What does a temperature anomaly indicate?`,
+          question: `How does a temperature anomaly of ${value}${data.Unit} impact communities and ecosystems in ${data.Area}?`,
           options: [
-            "The current temperature",
-            "How much temperature differs from a baseline average",
-            "The hottest day of the year",
-            "The humidity level"
+            "Temperature changes have no real-world effects",
+            "Affects agriculture, water availability, health, and biodiversity patterns",
+            "Only impacts tourism",
+            "Only affects winter sports"
           ],
           correctIndex: 1
         },
+        // Lesson 3: Economic/Practical
         {
-          question: `Rising temperature anomalies primarily result from:`,
+          question: `What are the main economic costs associated with regional temperature anomalies?`,
           options: [
-            "Natural weather variations only",
-            "Seasonal changes",
-            "Human activities increasing greenhouse gases",
-            "Ocean currents alone"
+            "There are no economic impacts",
+            "Only higher air conditioning bills",
+            "Agricultural losses, infrastructure damage, health costs, and adaptation expenses",
+            "Only affects insurance companies"
           ],
           correctIndex: 2
         },
+        // Lesson 4: Analytical/Comparative
         {
-          question: `Why do scientists track temperature anomalies over time?`,
+          question: `Why do some regions experience larger temperature anomalies than the global average?`,
           options: [
-            "To predict daily weather",
-            "To identify long-term climate change patterns",
-            "To set thermostat levels",
-            "To measure rainfall"
+            "All regions warm equally over time",
+            "Local geography, ocean currents, altitude, and feedback loops create regional variations",
+            "It's random variation with no pattern",
+            "Only due to measurement errors"
           ],
           correctIndex: 1
+        },
+        // Lesson 5: Solutions/Future-Oriented
+        {
+          question: `What is the MOST comprehensive approach to addressing regional temperature increases?`,
+          options: [
+            "Ignore it and hope it reverses naturally",
+            "Only focus on individual lifestyle changes",
+            "Combine emission reduction, adaptation infrastructure, policy changes, and community resilience",
+            "Wait for a technological breakthrough"
+          ],
+          correctIndex: 2
         }
       ];
 
-      const randomQuestion = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+      // Use lesson-specific question type instead of random
+      const selectedQuestion = questionTypes[(currentLesson - 1) % questionTypes.length];
       const quizPrompt = `Based on this paragraph about temperature change in ${data.Area}:
 "${generatedParagraph}"
 
 Generate ONE multiple-choice question in this EXACT JSON format (no other text):
-${JSON.stringify(randomQuestion)}
+${JSON.stringify(selectedQuestion)}
 
-Adapt the question and options to fit the context of the paragraph while maintaining the question type.
+Adapt the question and options to fit the context of the paragraph while maintaining the question type and perspective.
 Return ONLY valid JSON, nothing else.`;
 
       const { data: quizData, error: quizError } = await supabase.functions.invoke('generate-climate-content', {
