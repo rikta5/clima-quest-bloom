@@ -345,6 +345,174 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Pricing Section - Business Model */}
+      <section className="relative z-10 px-6 py-20 bg-gradient-to-b from-muted/30 to-background">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-2">
+              <Sparkles className="w-4 h-4" />
+              <span>For Companies & Organizations</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+              Transform Your ESG Education
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Empower your employees with engaging climate education while showcasing your commitment to transparency
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Platform Access */}
+            <Card className="relative overflow-hidden hover:shadow-eco-lg transition-all duration-500 border-2 hover:border-primary/50">
+              <div className="p-8 space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
+                    Pristup Platformi
+                  </h3>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                    Godišnja Licenca / Po Postrojenju
+                  </p>
+                </div>
+
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    2.500
+                  </span>
+                  <span className="text-2xl font-semibold text-primary">KM</span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Neograničen Broj Zapošlenika</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Pristup Portalu Zajednice</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Izvještavanje u Stvarnom Vremenu</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">API za Integraciju Podataka</p>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-primary to-accent hover:shadow-eco-lg transition-all">
+                  Kontaktirajte Nas
+                </Button>
+              </div>
+            </Card>
+
+            {/* Industrial Modules */}
+            <Card className="relative overflow-hidden hover:shadow-eco-lg transition-all duration-500 border-2 border-accent/50 bg-gradient-to-br from-accent/5 to-background">
+              <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-bold uppercase">
+                Popularno
+              </div>
+              <div className="p-8 space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
+                    Industrijski Moduli
+                  </h3>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                    Po Modulu / Godišnje
+                  </p>
+                </div>
+
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-accent">+</span>
+                  <span className="text-5xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+                    500
+                  </span>
+                  <span className="text-2xl font-semibold text-accent">KM</span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Cement i Beton</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Proizvodnja Čelika</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Hemijska Obrada</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent text-xs">✓</span>
+                    </div>
+                    <p className="text-foreground">Rudarske Operacije</p>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-accent to-primary hover:shadow-eco-lg transition-all">
+                  Saznajte Više
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          {/* Value Proposition */}
+          <div className="mt-16 max-w-4xl mx-auto">
+            <Card className="p-8 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+              <div className="text-center space-y-4">
+                <h3 className="text-2xl font-bold text-foreground">
+                  Zašto Investirati u ClimaQuest?
+                </h3>
+                <div className="grid md:grid-cols-3 gap-6 mt-6">
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-primary" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Angažovani Zaposleni</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Povećajte svijest i angažman kroz gamifikaciju
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-accent/10 flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-accent" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">ESG Transparentnost</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Pokažite predanost održivosti kroz edukaciju
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                      <Award className="w-6 h-6 text-primary" />
+                    </div>
+                    <h4 className="font-semibold text-foreground">Povjerenje Zajednice</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Izgradite odnos sa lokalnom zajednicom
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="relative z-10 px-6 py-20">
         <div className="max-w-4xl mx-auto">
