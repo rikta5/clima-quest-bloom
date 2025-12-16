@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Loader2, ArrowLeft, Sparkles, Award } from 'lucide-react';
+import { Badge } from './ui/badge';
+import { Loader2, ArrowLeft, Sparkles, Award, Building2 } from 'lucide-react';
 import { MainLayout } from './MainLayout';
 import { db } from '../lib/firebase';
 import { collection, getDocs, query, limit } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { useTopicProgress } from '@/hooks/useTopicProgress';
 import { useAchievements } from '@/hooks/useAchievements';
+import { getCompanyByTopic } from '@/config/companies';
 import confetti from 'canvas-confetti';
 
 interface Quiz {
@@ -539,6 +541,17 @@ Return ONLY valid JSON, nothing else.`;
                   <p className="text-lg font-bold text-primary">Lesson {currentLesson}/5</p>
                 </div>
               </div>
+              {topicId && getCompanyByTopic(topicId) && (
+                <Link to={`/company/${getCompanyByTopic(topicId)?.id}`}>
+                  <Badge 
+                    variant="outline" 
+                    className="bg-accent/10 hover:bg-accent/20 text-accent border-accent/30 transition-colors cursor-pointer"
+                  >
+                    <Building2 className="w-3 h-3 mr-1" />
+                    Data by: {getCompanyByTopic(topicId)?.shortName}
+                  </Badge>
+                </Link>
+              )}
               <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"

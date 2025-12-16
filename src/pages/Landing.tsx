@@ -67,11 +67,6 @@ const Landing = () => {
           </div>
           <div className="flex items-center gap-4">
             <Link to="/auth">
-              <Button variant="ghost" className="hover:bg-primary/10">
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/auth">
               <Button className="bg-gradient-to-r from-primary to-accent hover:shadow-eco-lg transition-all">
                 Get Started
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -170,7 +165,7 @@ const Landing = () => {
 
 
       {/* VIMEO MODAL */}
-      {showDemo && (
+      {/* {showDemo && (
       <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[999]">
         <div className="relative w-[90vw] max-w-4xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
           <iframe
@@ -187,7 +182,7 @@ const Landing = () => {
           </button>
         </div>
       </div>
-      )}
+      )} */}
 
 
       {/* How It Works Section */}

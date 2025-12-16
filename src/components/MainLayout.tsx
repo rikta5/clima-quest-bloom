@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Target, User, Film } from "lucide-react";
+import { Home, Target, User, Film, Building2 } from "lucide-react";
 import { EcoPointsBadge } from "./EcoPointsBadge";
 import { StreakBadge } from "./StreakBadge";
 import { useUserProgress } from "@/hooks/useUserProgress";
@@ -19,8 +19,9 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   const navItems = [
     { to: "/home", icon: Home, label: "Home" },
     { to: "/levels", icon: Target, label: "Levels" },
-    { to: "/profile", icon: User, label: "Profile" },
+    { to: "/companies", icon: Building2, label: "Companies" },
     { to: "/reels", icon: Film, label: "Reels" },
+    { to: "/profile", icon: User, label: "Profile" },
   ];
 
   const isActive = (path: string) => {
